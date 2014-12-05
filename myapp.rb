@@ -44,7 +44,7 @@ get '/*/' do
 	rescue
 		lang = CSV.read("base/lang.csv")
 	end
-	
+
 	lang = Hash[lang.map {|key, value| [key, value]}]
 	@lang = lang	
 
@@ -106,6 +106,11 @@ end
 helpers do
   def ab_test_init()
     return 1 + rand(2)
+  end
+
+  def determine_app_credentials(partner)
+    #retrieve app credentials for a particular partner
+    #keys["partner"] #=> my key, my shared secret
   end
 end
 
