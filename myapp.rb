@@ -40,10 +40,23 @@ get '/*/' do
 
 	# Display view
 	if ab_result == 1
-		erb :index
-
+		begin
+			erb :index
+		rescue
+			partnerOverride = "base"
+			erb :index
+		end
 	else
-		erb :index
+		begin
+			erb :index_alternate
+		rescue
+			begin
+				erb :index
+			rescue
+				partnerOverride = "base"
+				erb :index
+			end
+		end
 	end
 	
 end
@@ -59,6 +72,11 @@ end
 # Catch all root visits
 
 get '/' do
+	partnerOverride = "base"
+ 	erb :index
+end
+
+get '/*' do
 	partnerOverride = "base"
  	erb :index
 end
