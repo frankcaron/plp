@@ -11,6 +11,7 @@
 # |||| Reqs ||||
 
 require 'sinatra'
+require 'csv'
 
 # |||| Global vars ||||
 
@@ -22,7 +23,6 @@ set :views, Proc.new { File.join(settings.root, "/" + partnerOverride) }
 set :public_folder, Proc.new { File.join(root, partnerOverride) }
 set :show_exceptions, true
 set :static_cache_control, [:public, max_age: 0]
-
 
 # ------------------------------
 # Partner-specific Landing Page
@@ -37,6 +37,16 @@ end
 get '/*/' do
 	# Determine the ab result
 	ab_result = ab_test_init()
+
+	#Grab lang
+	begin
+		lang = CSV.read(partnerOverride + "/lang.csv")
+	rescue
+		lang = CSV.read("base/lang.csv")
+	end
+	
+	lang = Hash[lang.map {|key, value| [key, value]}]
+	@lang = lang	
 
 	# Display view
 	if ab_result == 1
@@ -63,13 +73,19 @@ end
 
 after '/*/' do
 	# Set the views for the partner using request.path_info
-	partnerOverride = "/partner/" + params[:splat][0]
+	partnerOverride = "partner/" + params[:splat][0]
 end
 
 # ------------------------------
 # Generic Landing Page
 # ------------------------------
 # Catch all root visits
+
+before '*' do
+	lang = CSV.read("base/lang.csv")
+	lang = Hash[lang.map {|key, value| [key, value]}]
+	@lang = lang
+end
 
 get '/' do
 	partnerOverride = "base"
@@ -92,6 +108,7 @@ helpers do
     return 1 + rand(2)
   end
 end
+
 
 
 
