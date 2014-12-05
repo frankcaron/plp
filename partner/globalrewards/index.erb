@@ -2,9 +2,9 @@
 <head>
 	<link rel="stylesheet" type="text/css" href="<%= url("style.css")%>">
 
-	<title>Welcome</title>
+	<title><%= params[:splat][0] %></title>
 </head>
 <body>
-	<p>This is my page for the base, bro.</p>
+	<p>This is my page for <b><%= params[:splat][0] %></b>, bro.</p>
 </body>
 </html>
