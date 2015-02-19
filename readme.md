@@ -33,6 +33,8 @@ To see it in action, try hitting the following URLs:
 
 Varying levels of overrides are enabled for each of these three partners; each of these sub-directories will result in different CSS and modules being loaded. Check the partner directory of the project to see what I mean.
 
+Alternatively, check it out on Heroku @ 'https://sheltered-stream-4637.herokuapp.com'.
+
 # Depedencies
 
 The Gemfile has it all, but in short:
