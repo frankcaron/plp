@@ -23,6 +23,16 @@ The following codebase provides a simple application which can be used for a mul
 
 View at `http://localhost:4567`
 
+# Demo
+
+To see it in action, try hitting the following URLs:
+
+* `http://localhost:4567/points/`
+* `http://localhost:4567/localloyalty/`
+* `http://localhost:4567/globalrewards/`
+
+Varying levels of overrides are enabled for each of these three partners; each of these sub-directories will result in different CSS and modules being loaded. Check the partner directory of the project to see what I mean.
+
 # Depedencies
 
 The Gemfile has it all, but in short:
