@@ -16,6 +16,7 @@ require "digest/sha1"
 require "openssl"
 require "uri"
 require "net/http"
+require "net/https"
 
 # Helpers
 
@@ -98,9 +99,34 @@ end
 
 # Tests
 
-puts "Generated Signature: " + generate_signature("mac_key", "normalized_request_string")
-puts "Normalized String: " + build_normalized_request_string("test", "nonce", "post", "lcp.points.com", "24", "/offers", "3") + "\n"
-puts "Nonce: " + generate_nonce() + "\n"
-puts "Generate Ext: " + generate_ext("test", "test")
-puts "Generate Auth Header: " + generate_authorization_header_value("POST","http://lcp.points.com/v1/offers","test","test","test","test")
+# puts "Generated Signature: " + generate_signature("mac_key", "normalized_request_string")
+# puts "Normalized String: " + build_normalized_request_string("test", "nonce", "post", "lcp.points.com", "24", "/offers", "3") + "\n"
+# puts "Nonce: " + generate_nonce() + "\n"
+# puts "Generate Ext: " + generate_ext("test", "test")
+# puts "Generate Auth Header: " + generate_authorization_header_value("POST","http://lcp.points.com/v1/offers","test","test","test","test")
+
+# Real test
+url = "https://lcp.points.com/v1/offer-sets"
+mac_key_identifier = ""
+mac_key = ""
+content_type = "application/json"
+body = "{}"
+headers = generate_authorization_header_value("POST",url,mac_key_identifier,mac_key,content_type,body)
+
+# Prep headers
+http.set_debug_output $stderr
+
+uri = URI(url)
+req = Net::HTTP::Post.new(uri)
+req["Authorization"] = headers
+
+req.set_debug_output $stderr
+
+# Make request
+Net::HTTP.start(uri.host, uri.port,
+  :use_ssl => uri.scheme == 'https') do |http|
+  response = req.post(uri,body)
+  puts response.body
+end
+
 
