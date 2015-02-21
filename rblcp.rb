@@ -1,4 +1,4 @@
-# ==============================
+﻿# ==============================
 # RbLCP
 # Frank Caron
 # Feb 2015
@@ -12,11 +12,11 @@
 
 require "Base64"
 require "SecureRandom"
-require "digest/sha1"
 require "openssl"
 require "uri"
 require "net/http"
 require "rest_client"
+require "CGI"
 
 # Helpers
 
@@ -46,10 +46,11 @@ def generate_signature(mac_key, normalized_request_string)
     # secret).
 
     # Do subs
-    mac_key = mac_key.gsub('-', '+')
-    mac_key = mac_key.gsub('_', '/')
-    key = Base64.encode64(mac_key + '=')
-    return Base64.encode64(OpenSSL::HMAC.digest('sha1',key, normalized_request_string))
+    # mac_key = mac_key.gsub('-', '+')
+    # mac_key = mac_key.gsub('_', '/')
+    mac_key += '=' * (4 - mac_key.length % 4)
+    key = Base64.urlsafe_decode64(mac_key)
+    return CGI.escape(Base64.encode64("#{OpenSSL::HMAC.digest('SHA1',key,normalized_request_string)}\n"))
 end
 
 def generate_ext(content_type, body)
@@ -62,7 +63,7 @@ def generate_ext(content_type, body)
         body.encode("iso-8859-1").force_encoding("utf-8")
         content_type.encode("iso-8859-1").force_encoding("utf-8")
         content_type_plus_body = content_type + body
-        ext = Digest::SHA1.hexdigest content_type_plus_body
+        ext = CGI.escape(Base64.encode64("#{OpenSSL::Digest.digest('SHA1', content_type_plus_body)}\n"))
     else
         ext = ""
     end
@@ -91,10 +92,8 @@ def generate_authorization_header_value(http_method,url,mac_key_identifier,mac_k
         port,
         uri.path,
         ext)
-
-    signature = generate_signature(mac_key, normalized_request_string)
-
-    return "MAC id=" + mac_key_identifier + ", ts=" + ts + ", nonce=" + nonce + ", ext=" + ext + ", mac=" + signature + "' "
+    signature = generate_signature(mac_key,normalized_request_string)
+    return 'MAC id="' + mac_key_identifier + '", ts="' + ts + '", nonce="' + nonce + '", ext="' + ext + '", mac="' + signature + '"'
 end
 
 # Tests
@@ -106,23 +105,26 @@ end
 # puts "Generate Auth Header: " + generate_authorization_header_value("POST","http://lcp.points.com/v1/offers","test","test","test","test")
 
 # Real test
-url = "https://sandbox.lcp.points.com/v1/lps/966cc451-9350-4d85-a7e4-d31b2c433a57/mvs/"
+url = "https://staging.lcp.points.com/v1/lps/966cc451-9350-4d85-a7e4-d31b2c433a57/mvs/"
 mac_key_identifier = ENV["PLP_MAC_ID"]
 mac_key = ENV["PLP_MAC_KEY"]
 content_type = "application/json"
-body = ""
+body = { "firstName" => "John", "lastName" => "Doe 2000", "memberId" => "dVNm" }.to_json
 headers = generate_authorization_header_value("POST",url,mac_key_identifier,mac_key,content_type,body)
 
 # Debug
-RestClient.log = 'rest.log'
+# puts mac_key_identifier
+# puts mac_key
+ puts headers
+# puts body
+# RestClient.log = 'rest.log'
 
 # Make request
 begin
-  response = RestClient.get(
-    url,
-    :content_type => :json,
-    :accept => :json,
-    "Authorization" => headers)
+  response = RestClient.post(
+    url, 
+    body,
+    :content_type => :json, :accept => :json, :"Authorization" => headers)
 rescue => e
   e.response
 end
