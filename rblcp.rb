@@ -105,7 +105,7 @@ end
 # puts "Generate Auth Header: " + generate_authorization_header_value("POST","http://lcp.points.com/v1/offers","test","test","test","test")
 
 # Real test
-url = "https://staging.lcp.points.com/v1/lps/966cc451-9350-4d85-a7e4-d31b2c433a57/mvs/"
+url = "https://staging.lcp.points.com/v1/offer-sets"
 mac_key_identifier = ENV["PLP_MAC_ID"]
 mac_key = ENV["PLP_MAC_KEY"]
 content_type = "application/json"
@@ -115,7 +115,7 @@ headers = generate_authorization_header_value("POST",url,mac_key_identifier,mac_
 # Debug
 # puts mac_key_identifier
 # puts mac_key
- puts headers
+# puts headers
 # puts body
 # RestClient.log = 'rest.log'
 
