@@ -1,0 +1,16 @@
+RestClient.get "https://lcp.points.com/v1/offer-sets", "Accept"=>"application/json", "Accept-Encoding"=>"gzip, deflate", "Authorization"=>"MAC id=, ts=1424475533, nonce=5257282f16553f44, ext=81187cfc5de6ee59b82a67c5441aaff430e835e2, mac=NWM5dWJGcCbmdW7YvcV6cPw1i/8=\n' ", "Content-Type"=>"application/json"
+# => 401 Unauthorized | application/json 189 bytes
+RestClient.get "https://lcp.points.com/v1/offer-sets", "Accept"=>"application/json", "Accept-Encoding"=>"gzip, deflate", "Authorization"=>"MAC id=2978fb3837014efabc983689126782d8, ts=1424475813, nonce=9ed7ae8ca9b1ee86, ext=81187cfc5de6ee59b82a67c5441aaff430e835e2, mac=jcrL1fCflTfLDQ4veaJoHyGH31c=\n' ", "Content-Type"=>"application/json"
+# => 401 Unauthorized | application/json 189 bytes
+RestClient.get "https://staging.lcp.points.com/v1/offer-sets", "Accept"=>"application/json", "Accept-Encoding"=>"gzip, deflate", "Authorization"=>"MAC id=2978fb3837014efabc983689126782d8, ts=1424475881, nonce=2f95d26ae869c3ab, ext=81187cfc5de6ee59b82a67c5441aaff430e835e2, mac=vCuuwGIaNR9uXw2HjiQMbttbak8=\n' ", "Content-Type"=>"application/json"
+# => 401 Unauthorized | application/json 189 bytes
+RestClient.get "https://staging.lcp.points.com/v1/offer-sets", "Accept"=>"application/json", "Accept-Encoding"=>"gzip, deflate", "Authorization"=>"MAC id=2978fb3837014efabc983689126782d8, ts=1424475888, nonce=eab33221abee6c5f, ext=81187cfc5de6ee59b82a67c5441aaff430e835e2, mac=GG6RK5R1H24rco5mFfW/ujFFXQE=\n' ", "Content-Type"=>"application/json"
+# => 401 Unauthorized | application/json 189 bytes
+RestClient.get "https://staging.lcp.points.com/v1/offer-sets/", "Accept"=>"application/json", "Accept-Encoding"=>"gzip, deflate", "Authorization"=>"MAC id=2978fb3837014efabc983689126782d8, ts=1424475944, nonce=d9652fe2509dd3bd, ext=81187cfc5de6ee59b82a67c5441aaff430e835e2, mac=kbWHrY+oX98EnkZL+eQEzAi41p8=\n' ", "Content-Type"=>"application/json"
+# => 401 Unauthorized | application/json 189 bytes
+RestClient.get "https://sandbox.lcp.points.com/v1/lps/966cc451-9350-4d85-a7e4-d31b2c433a57/mvs/", "Accept"=>"application/json", "Accept-Encoding"=>"gzip, deflate", "Authorization"=>"MAC id=2978fb3837014efabc983689126782d8, ts=1424476077, nonce=fb3ab30d281b8a1a, ext=81187cfc5de6ee59b82a67c5441aaff430e835e2, mac=dIWkKSX8+T0YNNGpcDeia9QYBJ8=\n' ", "Content-Type"=>"application/json"
+# => 401 Unauthorized | application/json 189 bytes
+RestClient.get "https://sandbox.lcp.points.com/v1/lps/966cc451-9350-4d85-a7e4-d31b2c433a57/mvs/", "Accept"=>"application/json", "Accept-Encoding"=>"gzip, deflate", "Authorization"=>"MAC id=2978fb3837014efabc983689126782d8, ts=1424476196, nonce=cdb356fb62497231, ext=, mac=4/oYhHdmX/LD3kvDkW/Zh3SN8Go=\n' ", "Content-Type"=>"application/json"
+# => 401 Unauthorized | application/json 189 bytes
+RestClient.get "https://sandbox.lcp.points.com/v1/lps/966cc451-9350-4d85-a7e4-d31b2c433a57/mvs/", "Accept"=>"application/json", "Accept-Encoding"=>"gzip, deflate", "Authorization"=>"MAC id=978fb3837014efabc983689126782d8, ts=1424477182, nonce=a764bb372ba4004d, ext=, mac=SXiKebFhCLRiq/fChnTXM3MRGTs=\n' ", "Content-Type"=>"application/json"
+# => 401 Unauthorized | application/json 189 bytes

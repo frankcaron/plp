@@ -16,7 +16,7 @@ require "digest/sha1"
 require "openssl"
 require "uri"
 require "net/http"
-require "net/https"
+require "rest_client"
 
 # Helpers
 
@@ -106,27 +106,25 @@ end
 # puts "Generate Auth Header: " + generate_authorization_header_value("POST","http://lcp.points.com/v1/offers","test","test","test","test")
 
 # Real test
-url = "https://lcp.points.com/v1/offer-sets"
-mac_key_identifier = ""
-mac_key = ""
+url = "https://sandbox.lcp.points.com/v1/lps/966cc451-9350-4d85-a7e4-d31b2c433a57/mvs/"
+mac_key_identifier = ENV["PLP_MAC_ID"]
+mac_key = ENV["PLP_MAC_KEY"]
 content_type = "application/json"
-body = "{}"
+body = ""
 headers = generate_authorization_header_value("POST",url,mac_key_identifier,mac_key,content_type,body)
 
-# Prep headers
-http.set_debug_output $stderr
-
-uri = URI(url)
-req = Net::HTTP::Post.new(uri)
-req["Authorization"] = headers
-
-req.set_debug_output $stderr
+# Debug
+RestClient.log = 'rest.log'
 
 # Make request
-Net::HTTP.start(uri.host, uri.port,
-  :use_ssl => uri.scheme == 'https') do |http|
-  response = req.post(uri,body)
-  puts response.body
+begin
+  response = RestClient.get(
+    url,
+    :content_type => :json,
+    :accept => :json,
+    "Authorization" => headers)
+rescue => e
+  e.response
 end
 
-
+puts e
