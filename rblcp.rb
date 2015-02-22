@@ -117,7 +117,7 @@ headers = generate_authorization_header_value("POST",url,mac_key_identifier,mac_
 # puts mac_key
 # puts headers
 # puts body
-# RestClient.log = 'rest.log'
+ RestClient.log = 'rest.log'
 
 # Make request
 begin

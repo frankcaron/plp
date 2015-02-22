@@ -1,0 +1,34 @@
+<h1>Give Points</h1>
+<p class="lead">
+	<p>Recognize a fellow Poinster!</p>
+
+	<p class="leader_text">Think your fellow employee did an amazing job worthy of recognition? Give 'em some Points! Employees with the most points at the end of the year will receive special recognition and rewards, so don't hesistate to celebrate hard work with a gift of points!</p>
+
+</p>
+<div class="giveDiv">
+	<div class="profileAvatarGive">
+		<img class="profileAvatar-image" src="https://pbs.twimg.com/profile_images/526893578170408960/vOWkaSYV.jpeg"/>
+	</div>
+	<div class="giveArrow">
+		<img src="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-ios7-arrow-forward-128.png" />
+	</div>
+	<div class="profileAvatarGive">
+		<img class="profileAvatar-image" src="http://3.bp.blogspot.com/-G5aIFyMZ7f0/T70hqGlbb5I/AAAAAAAAK_Q/FYMbyJz2SXU/s1600/Question_mark.PNG" />
+	</div>
+</div>
+
+<div class="give">
+	<form class="signup" method="post" action="/give">
+		<label class="formlabel" for="firstName">First Name: </label>
+     	<input class="textfield" type="text" name="firstName" placeholder=" Your recipient's first name" /><br />
+     	<label class="formlabel"  for="firstName">Last Name: </label>
+     	<input class="textfield" type="text" name="lastName" placeholder=" Your recipient's last name" /><br />
+     	<label class="formlabel"  for="firstName">Email: </label>
+     	<input class="textfield" type="text" name="email" placeholder=" Your recipient's email" /><br />
+     	<label class="formlabel"  for="points">Points: </label>
+     	<select class="textfield" name="points" >
+			<option value="1000">1000</option>
+		</select><br />
+		<input class="submit" type="submit" value="Give">
+	</form>
+</div>

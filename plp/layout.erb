@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Global Rewards - Your Points Loyalty Program</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+ <body>
+
+    <div class="container">
+      <div class="header">
+        <ul class="nav nav-pills pull-right">
+          <% if !@session %>
+            <li><a href="/login">Log In</a></li> 
+            <li><a href="/signup">Sign Up</a></li>  
+          <% else %>
+            <li><a href="/profile">Your Profile</a></li> 
+            <li><a href="/give">Give Points</a></li> 
+          <% end %>
+          <li><a href="http://www.points.com/">Points Home</a></li>
+        </ul>
+        <h3 class="text-muted"><a href="/"><img src="globalrewards_logo.png" alt="GlobalRewards" /></a></h3>
+      </div>
+
+      <div class="jumbotron">
+        <%= yield %>
+      </div>
+
+      <div class="row marketing">
+        <div class="col-lg-6">
+          <h4>Be loyal to our partners!</h4>
+          <p>By joining Global Rewards, you'll live as our members do and get a better sense of the obstacles and opportunities our pratners face.</p>
+
+        </div>
+
+        <div class="col-lg-6">
+          <h4>Share the love, and we will, too!</h4>
+          <p>Get engaged at Points and you'll find yourself handsomely rewarded with great perks, neat events, and even some potential rewards!</p>
+
+        </div>
+      </div>
+
+      <div class="footer" align="center">
+        <p>&copy; Global Rewards, 2015</p>
+      </div>
+
+    </div> <!-- /container -->
+
+   
+</body>
+</html>
+
+
