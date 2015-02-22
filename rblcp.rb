@@ -16,12 +16,12 @@ require "openssl"
 require "uri"
 require "net/http"
 require "rest_client"
-require "CGI"
 
 # Helpers
 
 def generate_nonce()
-    # Generates a random string intend for use as a nonce when computing an HMAC.
+    # Generates a random string intend for use as a nonce for use by the LCP when
+    # using the HMAC we make.
     return SecureRandom.hex(8)
 end
 
@@ -49,10 +49,16 @@ def generate_signature(mac_key, normalized_request_string)
     mac_key = mac_key.gsub('-', '+')
     mac_key = mac_key.gsub('_', '/')
     mac_key += '=' * (4 - mac_key.length % 4)
+
+    # URL Safe decode that mother father
     key = Base64.urlsafe_decode64(mac_key)
-    #key = Base64.decode64(mac_key)
+
+    # Return the trending hash(tag)
     return Base64.encode64(OpenSSL::HMAC.digest('SHA1',key,normalized_request_string)).strip
-    #return OpenSSL::HMAC.hexdigest('SHA1',key,normalized_request_string)
+
+    # Alternate approaches..
+    # key = Base64.decode64(mac_key)
+    # return OpenSSL::HMAC.hexdigest('SHA1',key,normalized_request_string)
 end
 
 def generate_ext(content_type, body)
@@ -67,6 +73,7 @@ def generate_ext(content_type, body)
         unless content_type.encoding == Encoding::ISO_8859_1
             content_type.encode("iso-8859-1").force_encoding("utf-8")
         end
+        # Hash browns
         ext = OpenSSL::Digest::SHA1.hexdigest(content_type + body)
     else
         ext = ""
@@ -120,7 +127,7 @@ puts "Mac ID: " + mac_key_identifier
 puts "Mac Key: " + mac_key
 puts "Headers: " + headers
 puts "Body: " + body
- RestClient.log = 'rest.log'
+RestClient.log = 'rest.log'
 
 # Make request
 begin
