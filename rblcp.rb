@@ -67,11 +67,11 @@ def generate_ext(content_type, body)
     if content_type != nil && body != nil && content_type.length > 0 && body.length > 0
         # Hashing requires a bytestring, so we need to encode back to utf-8
         # in case the body/header have already been decoded to unicode
-        unless body.encoding == Encoding::ISO_8859_1
-            body.encode("iso-8859-1").force_encoding("utf-8")
+        unless body.encoding == Encoding::UTF_8
+            body.encode("utf-8")
         end
-        unless content_type.encoding == Encoding::ISO_8859_1
-            content_type.encode("iso-8859-1").force_encoding("utf-8")
+        unless content_type.encoding == Encoding::UTF_8
+            content_type.encode("utf-8")
         end
         # Hash browns
         ext = OpenSSL::Digest::SHA1.hexdigest(content_type + body)
