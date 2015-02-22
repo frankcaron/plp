@@ -46,12 +46,13 @@ def generate_signature(mac_key, normalized_request_string)
     # secret).
 
     # Do subs
-    # mac_key = mac_key.gsub('-', '+')
-    # mac_key = mac_key.gsub('_', '/')
+    mac_key = mac_key.gsub('-', '+')
+    mac_key = mac_key.gsub('_', '/')
     mac_key += '=' * (4 - mac_key.length % 4)
-    key = Base64.urlsafe_decode64(mac_key)
-    # return CGI.escape(Base64.encode64("#{OpenSSL::HMAC.digest('SHA1',key,normalized_request_string)}\n").strip)
+    #key = Base64.urlsafe_decode64(mac_key)
+    key = Base64.decode64(mac_key)
     return Base64.encode64(OpenSSL::HMAC.digest('SHA1',key,normalized_request_string)).strip
+    #return OpenSSL::HMAC.hexdigest('SHA1',key,normalized_request_string)
 end
 
 def generate_ext(content_type, body)
@@ -59,13 +60,14 @@ def generate_ext(content_type, body)
     # http://tools.ietf.org/html/draft-ietf-oauth-v2-http-mac-02#section-3.1"""
     if content_type != nil && body != nil && content_type.length > 0 && body.length > 0
         # Hashing requires a bytestring, so we need to encode back to utf-8
-        # in case the body/header have already been decoded to unicode (by the
-        # python json module for instance)
-        body.encode("iso-8859-1").force_encoding("utf-8")
-        content_type.encode("iso-8859-1").force_encoding("utf-8")
-        content_type_plus_body = content_type + body
-        #ext = CGI.escape(Base64.encode64("#{OpenSSL::Digest.digest('SHA1', content_type_plus_body)}\n"))
-        ext = Base64.encode64(OpenSSL::Digest::SHA1.digest(content_type_plus_body)).strip
+        # in case the body/header have already been decoded to unicode
+        unless body.encoding == Encoding::ISO_8859_1
+            body.encode("iso-8859-1").force_encoding("utf-8")
+        end
+        unless content_type.encoding == Encoding::ISO_8859_1
+            content_type.encode("iso-8859-1").force_encoding("utf-8")
+        end
+        ext = OpenSSL::Digest::SHA1.hexdigest(content_type + body)
     else
         ext = ""
     end
@@ -73,6 +75,8 @@ def generate_ext(content_type, body)
 end
 
 def generate_authorization_header_value(http_method,url,mac_key_identifier,mac_key,content_type,body)
+
+    # Gather the bits and pieces for the request string
     uri = URI(url)
     port = uri.port
     unless port != nil
@@ -82,19 +86,16 @@ def generate_authorization_header_value(http_method,url,mac_key_identifier,mac_k
             port = Net::HTTP.default_port().to_s
         end
     end
-
     ts = Time.now().to_i.to_s
     nonce = generate_nonce()
     ext = generate_ext(content_type, body)
-    normalized_request_string = build_normalized_request_string(
-        ts,
-        nonce,
-        http_method,
-        uri.host,
-        port,
-        uri.path,
-        ext)
+
+    # Create the signature of legend
+
+    normalized_request_string = build_normalized_request_string(ts,nonce,http_method,uri.host,port,uri.path,ext)
     signature = generate_signature(mac_key,normalized_request_string)
+
+    # Return the auth header
     return 'MAC id="' + mac_key_identifier + '", ts="' + ts + '", nonce="' + nonce + '", ext="' + ext + '", mac="' + signature + '"'
 end
 
@@ -107,7 +108,7 @@ end
 # puts "Generate Auth Header: " + generate_authorization_header_value("POST","http://lcp.points.com/v1/offers","test","test","test","test")
 
 # Real test
-url = "https://staging.lcp.points.com/v1/offer-sets"
+url = "https://sandbox-staging.lcp.points.com/v1/lps/93eec35b-2aa1-45bf-866f-06f9de9c0b52/mvs/"
 mac_key_identifier = ENV["PLP_MAC_ID"]
 mac_key = ENV["PLP_MAC_KEY"]
 content_type = "application/json"
@@ -116,9 +117,9 @@ headers = generate_authorization_header_value("POST",url,mac_key_identifier,mac_
 
 # Debug
 puts "Mac ID: " + mac_key_identifier
-puts "Mac Key: " +mac_key
-puts "Headers: " +headers
-puts "Body: " +body
+puts "Mac Key: " + mac_key
+puts "Headers: " + headers
+puts "Body: " + body
  RestClient.log = 'rest.log'
 
 # Make request
