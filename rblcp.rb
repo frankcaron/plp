@@ -50,7 +50,8 @@ def generate_signature(mac_key, normalized_request_string)
     # mac_key = mac_key.gsub('_', '/')
     mac_key += '=' * (4 - mac_key.length % 4)
     key = Base64.urlsafe_decode64(mac_key)
-    return CGI.escape(Base64.encode64("#{OpenSSL::HMAC.digest('SHA1',key,normalized_request_string)}\n"))
+    # return CGI.escape(Base64.encode64("#{OpenSSL::HMAC.digest('SHA1',key,normalized_request_string)}\n").strip)
+    return Base64.encode64(OpenSSL::HMAC.digest('SHA1',key,normalized_request_string)).strip
 end
 
 def generate_ext(content_type, body)
@@ -63,7 +64,8 @@ def generate_ext(content_type, body)
         body.encode("iso-8859-1").force_encoding("utf-8")
         content_type.encode("iso-8859-1").force_encoding("utf-8")
         content_type_plus_body = content_type + body
-        ext = CGI.escape(Base64.encode64("#{OpenSSL::Digest.digest('SHA1', content_type_plus_body)}\n"))
+        #ext = CGI.escape(Base64.encode64("#{OpenSSL::Digest.digest('SHA1', content_type_plus_body)}\n"))
+        ext = Base64.encode64(OpenSSL::Digest::SHA1.digest(content_type_plus_body)).strip
     else
         ext = ""
     end
@@ -113,10 +115,10 @@ body = { "firstName" => "John", "lastName" => "Doe 2000", "memberId" => "dVNm" }
 headers = generate_authorization_header_value("POST",url,mac_key_identifier,mac_key,content_type,body)
 
 # Debug
-# puts mac_key_identifier
-# puts mac_key
-# puts headers
-# puts body
+puts "Mac ID: " + mac_key_identifier
+puts "Mac Key: " +mac_key
+puts "Headers: " +headers
+puts "Body: " +body
  RestClient.log = 'rest.log'
 
 # Make request
