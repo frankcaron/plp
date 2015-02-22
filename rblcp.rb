@@ -49,8 +49,8 @@ def generate_signature(mac_key, normalized_request_string)
     mac_key = mac_key.gsub('-', '+')
     mac_key = mac_key.gsub('_', '/')
     mac_key += '=' * (4 - mac_key.length % 4)
-    #key = Base64.urlsafe_decode64(mac_key)
-    key = Base64.decode64(mac_key)
+    key = Base64.urlsafe_decode64(mac_key)
+    #key = Base64.decode64(mac_key)
     return Base64.encode64(OpenSSL::HMAC.digest('SHA1',key,normalized_request_string)).strip
     #return OpenSSL::HMAC.hexdigest('SHA1',key,normalized_request_string)
 end
