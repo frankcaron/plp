@@ -66,7 +66,7 @@ end
 # External helpers
 
 # RuLCP
-require "./rblcp"
+require_relative "rblcp"
 
 
 
