@@ -10,7 +10,7 @@
 # |||| Reqs ||||
 
 require "sinatra"
-require_relative "rblcp"
+require "./rblcp"
 
 # |||| Default Settings ||||
 
