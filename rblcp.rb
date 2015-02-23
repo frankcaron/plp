@@ -30,13 +30,13 @@ def build_normalized_request_string(ts, nonce, http_method, host, port, request_
     # http://tools.ietf.org/html/draft-ietf-oauth-v2-http-mac-02#section-3.2.1
 
     normalized_request_string = \
-        ts + '\n' + \
-        nonce + '\n' + \
-        http_method + '\n' + \
-        request_path + '\n' + \
-        host + '\n' + \
-        port.to_s + '\n' + \
-        ext + '\n'
+        ts + "\n" + \
+        nonce + "\n" + \
+        http_method + "\n" + \
+        request_path + "\n" + \
+        host + "\n" + \
+        port.to_s + "\n" + \
+        ext + "\n"
     return normalized_request_string
 end
 
@@ -116,10 +116,12 @@ end
 
 # Real test
 url = "https://sandbox-staging.lcp.points.com/v1/lps/93eec35b-2aa1-45bf-866f-06f9de9c0b52/mvs/"
+
 mac_key_identifier = ENV["PLP_MAC_ID"]
 mac_key = ENV["PLP_MAC_KEY"]
+
 content_type = "application/json"
-body = { "firstName" => "John", "lastName" => "Doe 2000", "memberId" => "dVNm" }.to_json
+body = { "firstName" => "John", "lastName" => "Doe 2000", "memberId" => "hhon" }.to_json
 headers = generate_authorization_header_value("POST",url,mac_key_identifier,mac_key,content_type,body)
 
 # Debug
@@ -139,4 +141,4 @@ rescue => e
   e.response
 end
 
-puts e
+puts response.to_str
