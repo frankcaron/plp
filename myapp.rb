@@ -10,6 +10,7 @@
 # |||| Reqs ||||
 
 require "sinatra"
+require_relative "rblcp"
 
 # |||| Default Settings ||||
 
@@ -63,10 +64,6 @@ helpers do
   end
 end
 
-# External helpers
-
-# RuLCP
-require_relative "rblcp"
 
 
 
