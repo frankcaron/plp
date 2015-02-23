@@ -1,17 +1,12 @@
-# Multitenant Storefront
+# Points Loyalty Program (Front-End)
 
-The following codebase provides a simple application which can be used for a multi-tenant, white-label eCommerce storefront.
+The following codebase provides a simple, Heroku-deployable front-end web application which connects to the Points Loyalty Commerce Platform and our own homebrewed loyalty program so that our employees can live in the shoes of our customers.
 
 # Features
 
-* Multi-tenant template loading (based on sub-directory)
-	* Modular template structure
-	* Inheritance and per-tenant, per-module template overrides
-	* CSS override
-* Template-agnostic language support
-	* CSV with key-value pairs representing all the language found in the templates
-	* Inheritance and per-tenant overrides
-* Tenant-specific app credential mapping (for interaction with external APIs)
+* Log in with Google ID (Points employees only)
+* View your balance and leaderboard position
+* Gift points to hard-working fellow employees as a means of recognition
 
 # Installation
 
@@ -25,15 +20,7 @@ View at `http://localhost:4567`
 
 # Demo
 
-To see it in action, try hitting the following URLs:
-
-* `http://localhost:4567/points/`
-* `http://localhost:4567/localloyalty/`
-* `http://localhost:4567/globalrewards/`
-
-Varying levels of overrides are enabled for each of these three partners; each of these sub-directories will result in different CSS and modules being loaded. Check the partner directory of the project to see what I mean.
-
-Alternatively, check it out on Heroku @ 'https://sheltered-stream-4637.herokuapp.com'.
+Alternatively, check it out on Heroku @ 'https://plp.herokuapp.com'.
 
 # Depedencies
 
@@ -41,4 +28,4 @@ The Gemfile has it all, but in short:
 
 * Ruby (2.1.5)
 * Sinatra
-* CSV
+* RbLCP

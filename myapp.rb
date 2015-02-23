@@ -9,8 +9,7 @@
 
 # |||| Reqs ||||
 
-require 'sinatra'
-require 'csv'
+require "sinatra"
 
 # |||| Default Settings ||||
 
@@ -23,15 +22,11 @@ session = false
 sessionID = ""
 
 # ------------------------------
-# Partner-specific Landing Page
+# Main Routes
 # ------------------------------
-# Before any partner-specific visit, set up the views to point to the right partner folder
 
 before '/account/*' do
-	# Validate session
-	unless session && sessionID != nil
-		redirect '/'
-	end
+	validate_session()
 end
 
 get '/signup' do
@@ -61,16 +56,17 @@ end
 
 helpers do
 
-  def determine_app_credentials(partner)
-    #retrieve app credentials for a particular partner
-    #keys["partner"] #=> my key, my shared secret
+  def validate_session()
+    unless session && sessionID != nil
+		redirect '/'
+	end
   end
 end
 
 # External helpers
 
 # RuLCP
-# require './rblcp.rb'
+require './rblcp.rb'
 
 
 
