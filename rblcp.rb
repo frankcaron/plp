@@ -10,8 +10,8 @@
 
 # Reqs
 
-require "Base64"
-require "SecureRandom"
+require "base64"
+require "securerandom"
 require "openssl"
 require "uri"
 require "net/http"
