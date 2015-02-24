@@ -23,6 +23,7 @@ set :show_exceptions, true
 set :static_cache_control, [:public, max_age: 0]
 
 session = false
+sessionToken = ""
 sessionMember = ""
 
 configure :production do
@@ -43,17 +44,22 @@ get '/logged-in' do
 	# Grab Token
 	accessToken = params[:token]
 
-	# Fetch account given token
-	# fetch_deets(accessToken)
+	unless accessToken.nil?
+		# Set Session
+		session = true
+		sessionToken = accessToken
 
-	# Create MV given token
-	# create_mv(first_name,last_name,email)
+		# Fetch account given token
+		# fetch_deets(accessToken)
 
-	# Otherwise, create an account first
-	# create_account()
+		# Create MV given token
+		# create_mv(first_name,last_name,email)
 
+		# Otherwise, create an account first
+		# create_account()
+	end
 	# Redirect to profile once account created successfully
-	# redirect '/profile'
+	redirect '/account/profile'
 end
 
 # Account Goodness
@@ -62,11 +68,11 @@ before '/account/*' do
 	validate_session()
 end
 
-get '/profile' do
+get '/account/profile' do
  	erb :profile
 end
 
-get '/give' do
+get '/account/give' do
  	erb :give
 end
 
