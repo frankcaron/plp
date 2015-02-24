@@ -137,7 +137,7 @@ helpers do
   def create_mv(email)
 
   	# Set up basics
-  	url = "https://staging.lcp.points.com/v1/lps/53678d34-92c7-46c3-942b-d195ccf33637"
+  	url = "https://staging.lcp.points.com/v1/lps/53678d34-92c7-46c3-942b-d195ccf33637/mvs/"
 	mac_key_identifier = ENV["PLP_MAC_ID"]
 	mac_key = ENV["PLP_MAC_KEY"]
 	content_type = "application/json"
