@@ -27,6 +27,7 @@ configure do
 	set :session, false
 	set :sessionToken, ""
 	set :sessionMember, ""
+	set :sessionMV, ""
 end
 
 configure :production do
@@ -52,15 +53,6 @@ get '/logged-in' do
 		settings.session = true
 		settings.sessionToken = accessToken
 
-		# Fetch account given token
-		# fetch_deets(accessToken)
-
-		# Create MV given token
-		# create_mv(first_name,last_name,email)
-
-		# Otherwise, create an account first
-		# create_account()
-
 		# Redirect to profile once account created successfully
 		redirect '/account/profile'
 	end
@@ -77,6 +69,9 @@ end
 get '/account/profile' do
 	#Fetch the member details
 	settings.sessionMember = fetch_deets(settings.sessionToken)
+
+	#Do an MV
+	settings.sessionMV = create_mv(settings.sessionMember["emails"][0]["value"].to_s)
 
 	#Pass session details to view
 	@member = settings.sessionMember
@@ -120,12 +115,13 @@ helpers do
 		response = RestClient.get(
 			url, 
 			:content_type => :json, :accept => :json)
+		# Stuff response in
+		return JSON.parse(response.to_str)
 	rescue => e
 		# Log the response
 		e.response
 	end
-	# Stuff response in
-	return JSON.parse(response.to_str)
+	return ""
   end  
 
   # Validate the sessions
@@ -151,16 +147,17 @@ helpers do
 		response = RestClient.post(
 			url, body, 
 			:content_type => :json, :accept => :json, :"Authorization" => headers)
+		return JSON.parse(response.to_str)
 	rescue => e
 		# Log the response
 		e.response
 
 		# If the member doesn't exist, create an account.
 		if e.response.code == 422 
-			create_account()
+			# create_account()
 		end 
-
 	end
+	return ""
 
 	# Dump MV vars into a session placeholder
 	# session = true
