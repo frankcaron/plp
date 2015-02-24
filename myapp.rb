@@ -119,7 +119,7 @@ helpers do
 			:content_type => :json, :accept => :json)
 	rescue => e
 		# Log the response
-		e.response
+		sessionMember = e.response.to_str
 	end
 	# Stuff response in
 	sessionMember = response.to_str
