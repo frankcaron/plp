@@ -106,7 +106,7 @@ helpers do
 
   # Validate the sessions
   def validate_session(session,token)
-    if session != true && token = ""
+    if session != true && token == ""
 		redirect '/'
 	else 
 		redirect '/profile'
