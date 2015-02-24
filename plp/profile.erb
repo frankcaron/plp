@@ -2,7 +2,7 @@
 <div class="spacer">&nbsp;</div>
 <div class="profileDeets">
 	<p class="lead">
-		<h2><strong>Frank Caron</strong></h2>
+		<h2><strong><%= @member["name"]["givenName"] %> <%= @member["name"]["lastName"] %></strong></h2>
 		<p><em>frank.caron@points.com</em></p>
 		<p>
 			<span class="profileAttribute">Joined Points:</span> March 3, 2015<br />
@@ -14,7 +14,7 @@
 </div>
 <div class="profileImage">
 	<div class="profileAvatar">
-		<img class="profileAvatar-image" src="https://pbs.twimg.com/profile_images/526893578170408960/vOWkaSYV.jpeg" width="250" />
+		<img class="profileAvatar-image" src="<%= @member["image"]["url"] %>" width="250" />
 	</div>
 </div>
 <div style="clear: both;">&nbsp;</div>
@@ -32,4 +32,4 @@
 		<p>#4</p>
 	</div>
 </div>
-<div><%= @member %></div>
+<div></div>

@@ -12,6 +12,7 @@
 require "sinatra"
 require "rack-ssl-enforcer"
 require "rest_client"
+require "json"
 
 require "./rblcp"
 
@@ -124,7 +125,7 @@ helpers do
 		e.response
 	end
 	# Stuff response in
-	return response.to_str
+	return JSON.parse(response.to_str)
   end  
 
   # Validate the sessions
