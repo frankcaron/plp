@@ -2,8 +2,8 @@
 <div class="spacer">&nbsp;</div>
 <div class="profileDeets">
 	<p class="lead">
-		<h2><strong><%= @member["name"]["givenName"] %> <%= @member["name"]["lastName"] %></strong></h2>
-		<p><em>frank.caron@points.com</em></p>
+		<h2><strong><%= @member["name"]["givenName"] %> <%= @member["name"]["familyName"] %></strong></h2>
+		<p><em><%= @member["emails"][0]["value"] %></em></p>
 		<p>
 			<span class="profileAttribute">Joined Points:</span> March 3, 2015<br />
 			<span class="profileAttribute">Department:</span> Product<br />
