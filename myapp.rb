@@ -65,7 +65,7 @@ end
 # Account Goodness
 
 before '/account/*' do
-	validate_session()
+	validate_session(session,sessionMember)
 end
 
 get '/account/profile' do
@@ -90,8 +90,8 @@ end
 helpers do
 
   # Validate the sessions
-  def validate_session()
-    unless session && sessionMember != nil
+  def validate_session(session,member)
+    unless session && member != ""
 		redirect '/'
 	end
   end
