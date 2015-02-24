@@ -23,9 +23,9 @@ configure do
 	set :show_exceptions, true
 	set :static_cache_control, [:public, max_age: 0]
 
-	set :session = false
-	set :sessionToken = ""
-	set :sessionMember = ""
+	set :session, false
+	set :sessionToken, ""
+	set :sessionMember, ""
 end
 
 configure :production do
