@@ -53,6 +53,12 @@ get '/logged-in' do
 		settings.session = true
 		settings.sessionToken = accessToken
 
+		#Fetch the member details
+		settings.sessionMember = fetch_deets(settings.sessionToken)
+
+		#Do an MV
+		settings.sessionMV = create_mv(settings.sessionMember["emails"][0]["value"].to_s)
+
 		# Redirect to profile once account created successfully
 		redirect '/account/profile'
 	end
@@ -67,12 +73,6 @@ before '/account/*' do
 end
 
 get '/account/profile' do
-	#Fetch the member details
-	settings.sessionMember = fetch_deets(settings.sessionToken)
-
-	#Do an MV
-	settings.sessionMV = create_mv(settings.sessionMember["emails"][0]["value"].to_s)
-
 	#Pass session details to view
 	@member = settings.sessionMember
 	@session = settings.session
@@ -82,7 +82,11 @@ get '/account/profile' do
 end
 
 get '/account/give' do
+	#Pass session details to view
+	@member = settings.sessionMember
 	@session = settings.session
+
+	# Load view
  	erb :give
 end
 
