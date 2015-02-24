@@ -57,15 +57,18 @@ get '/logged-in' do
 
 		# Otherwise, create an account first
 		# create_account()
+
+		# Redirect to profile once account created successfully
+		redirect '/account/profile'
 	end
-	# Redirect to profile once account created successfully
-	redirect '/account/profile'
+	# Redirect back to log in page if something goes wrong
+	redirect '/login'
 end
 
 # Account Goodness
 
 before '/account/*' do
-	validate_session(session,sessionMember)
+	validate_session(session,sessionToken)
 end
 
 get '/account/profile' do
@@ -90,8 +93,8 @@ end
 helpers do
 
   # Validate the sessions
-  def validate_session(session,member)
-    unless session && member != ""
+  def validate_session(session,token)
+    unless session == true && token != ""
 		redirect '/'
 	end
   end
