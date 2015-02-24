@@ -57,7 +57,10 @@ get '/logged-in' do
 		settings.sessionMember = fetch_deets(settings.sessionToken)
 
 		#Do an MV
-		settings.sessionMV = create_mv(settings.sessionMember["name"]["givenName"], settings.sessionMember["name"]["familyName"],settings.sessionMember["emails"][0]["value"].to_s),2000)
+		settings.sessionMV = create_mv(settings.sessionMember["name"]["givenName"],
+									   settings.sessionMember["name"]["familyName"],
+									   settings.sessionMember["emails"][0]["value"].to_s,
+									   2000)
 
 		# Redirect to profile once account created successfully
 		redirect '/account/profile'
