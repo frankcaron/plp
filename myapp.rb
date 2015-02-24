@@ -35,9 +35,6 @@ end
 # ------------------------------
 
 # Log In
-before '/' do
-	validate_session(session,sessionToken)
-end
 
 get '/login' do
  	erb :login
@@ -106,10 +103,8 @@ helpers do
 
   # Validate the sessions
   def validate_session(session,token)
-    if session != true && token == ""
+    unless session  && token != ""
 		redirect '/'
-	else 
-		redirect '/profile'
 	end
   end
 
