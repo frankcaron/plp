@@ -7019,6 +7019,6 @@ input#points {
   color: #BBB;
 }
 
-.ui-overlay-a {
+.ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
   background: #fff !important;
 }
