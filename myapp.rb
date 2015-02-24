@@ -26,16 +26,21 @@ sessionID = ""
 # Main Routes
 # ------------------------------
 
-before '/account/*' do
-	validate_session()
-end
-
-get '/signup' do
- 	erb :signup
-end
+# Log In
 
 get '/login' do
  	erb :login
+end
+
+get '/logged-in' do
+	# Process Login
+ 	erb :signup
+end
+
+# Account Goodness
+
+before '/account/*' do
+	validate_session()
 end
 
 get '/profile' do
@@ -45,6 +50,8 @@ end
 get '/give' do
  	erb :give
 end
+
+# Catch All
 
 get '/*' do
  	erb :index
