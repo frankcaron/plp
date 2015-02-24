@@ -113,7 +113,14 @@ helpers do
 			url, body, 
 			:content_type => :json, :accept => :json, :"Authorization" => headers)
 	rescue => e
+		# Log the response
 		e.response
+
+		# If the member doesn't exist, create an account.
+		if e.response.code == 422 
+			create_account()
+		end 
+
 	end
 
 	# Dump MV vars into a session placeholder
