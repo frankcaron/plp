@@ -14,9 +14,9 @@ The following codebase provides a simple, Heroku-deployable front-end web applic
 
 # Run
 
-`ruby myapp.rb`
+`rackup config.ru`
 
-View at `http://localhost:4567`
+View at `http://localhost:9292`
 
 # Demo
 
