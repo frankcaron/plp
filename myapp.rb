@@ -28,8 +28,6 @@ configure do
 	set :sessionToken, ""
 	set :sessionMember, ""
 	set :sessionMV, ""
-
-	set :bind, '0.0.0.0'
 end
 
 configure :production do
