@@ -7003,6 +7003,18 @@ div.giveArrow, div.giveArrow img {
   display: inline-block;
 }
 
-div.give {
+div.give, form.give {
   margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0px;
+}
+
+div.ui-slider {
+  margin-bottom: 20px !important;
+  margin-top: 20px !important;
+}
+
+input#points {
+  color: #BBB;
 }

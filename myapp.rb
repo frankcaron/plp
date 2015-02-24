@@ -62,6 +62,8 @@ get '/logged-in' do
 									   settings.sessionMember["emails"][0]["value"].to_s,
 									   2000)
 
+		puts settings.sessionMV.to_s
+
 		# Redirect to profile once account created successfully
 		redirect '/account/profile'
 	end
@@ -78,6 +80,7 @@ end
 get '/account/profile' do
 	#Pass session details to view
 	@member = settings.sessionMember
+	@mv = settings.sessionMV
 	@session = settings.session
 
 	#Load view
@@ -87,6 +90,7 @@ end
 get '/account/give' do
 	#Pass session details to view
 	@member = settings.sessionMember
+	@mv = settings.sessionMV
 	@session = settings.session
 
 	# Load view
@@ -94,6 +98,11 @@ get '/account/give' do
 end
 
 # Catch All
+
+get '/error' do
+	kill_session()
+ 	erb :error
+end
 
 get '/*' do
  	erb :index
@@ -119,7 +128,6 @@ helpers do
 	settings.sessionToken = ""
 	settings.sessionMember = ""
 	settings.sessionMV = ""
-	redirect '/'
   end  
 
   # Fetch the member details
@@ -135,30 +143,11 @@ helpers do
 		return JSON.parse(response.to_str)
 	rescue => e
 		# Log the response
-		e.response
+		puts "LOG | Details fetch error | " + e.response
+		# Redirect to the error page
+		redirect '/error'
 	end
-	return ""
   end  
-
-  # Helper method to create an account when one doesn't exist
-  def create_account(firstName,lastName,email,points)
-  	# Create an account with Mihnea's LP
-  	url = "https://plp-api.herokuapp.com/register"
-	content_type = "application/json"
-	body = { "memberId" => email, "firstName" => firstName, "lastName" => lastName, "points" => points,  }.to_json
-	
-	# Make Request
-	begin
-		response = RestClient.post(
-			url, body, 
-			:content_type => :json, :accept => :json)
-			puts response.to_str
-		rescue => e
-			# Log the response
-			e.response
-			kill_session()
-		end
-  end
 
   # Create an MV given some member details
   def create_mv(firstName,lastName,email,points)
@@ -180,20 +169,37 @@ helpers do
 			:content_type => :json, :accept => :json, :"Authorization" => headers)
 		return JSON.parse(response.to_str)
 	rescue => e
-		# Log the response
-		e.response
-
 		# If the member doesn't exist, create an account.
 		if e.response.code == 422 
 			create_account(firstName,lastName,email,points)
-		end 
+		else 
+			# Log the response
+			puts "LOG | MV create error | " + e.response
+			# Redirect to the error page
+			redirect '/error'
+		end
 	end
-	return ""
+  end
 
-	# Dump MV vars into a session placeholder
-	# session = true
-	# sessionMember = response.to_s
-
+  # Helper method to create an account when one doesn't exist
+  def create_account(firstName,lastName,email,points)
+  	# Create an account with Mihnea's LP
+  	url = "https://plp-api.herokuapp.com/register"
+	content_type = "application/json"
+	body = { "memberId" => email, "firstName" => firstName, "lastName" => lastName, "points" => points,  }.to_json
+	
+	# Make Request
+	begin
+		response = RestClient.post(
+			url, body, 
+			:content_type => :json, :accept => :json)
+			puts response.to_str
+		rescue => e
+			# Log the response
+			puts "LOG | Account create error | " + e.response
+			# Redirect to the error page
+			redirect '/error'
+		end
   end
 
 end

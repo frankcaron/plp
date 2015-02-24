@@ -18,17 +18,11 @@
 </div>
 
 <div class="give">
-	<form class="signup" method="post" action="/give">
-		<label class="formlabel" for="firstName">First Name: </label>
-     	<input class="textfield" type="text" name="firstName" placeholder=" Your recipient's first name" /><br />
-     	<label class="formlabel"  for="firstName">Last Name: </label>
-     	<input class="textfield" type="text" name="lastName" placeholder=" Your recipient's last name" /><br />
-     	<label class="formlabel"  for="firstName">Email: </label>
-     	<input class="textfield" type="text" name="email" placeholder=" Your recipient's email" /><br />
-     	<label class="formlabel"  for="points">Points: </label>
-     	<select class="textfield" name="points" >
-			<option value="1000">1000</option>
-		</select><br />
+	<form class="give" method="post" action="/give">
+     	<input class="textfield" type="text" name="firstName" placeholder=" Your recipient's first name" />
+     	<input class="textfield" type="text" name="lastName" placeholder=" Your recipient's last name" />
+     	<input class="textfield" type="text" name="email" placeholder=" Your recipient's email" />
+     	<input type="range" name="points" id="points" value="1000" min="0" max="<%= @mv["balance"] %>" data-highlight="true">
 		<input class="submit" type="submit" value="Give">
 	</form>
 </div>
