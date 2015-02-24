@@ -35,7 +35,7 @@ end
 # ------------------------------
 
 # Log In
-before '/*' do
+before '/' do
 	validate_session(session,sessionToken)
 end
 
