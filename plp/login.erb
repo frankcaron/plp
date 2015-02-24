@@ -22,7 +22,8 @@ function signinCallback(authResult) {
   if (authResult['status']['signed_in']) {
     // Update the app to reflect a signed in user
     // Hide the sign-in button now that the user is authorized, for example:
-    document.location.href("/logged-in?token=" + authResult['access_token']);
+    //window.location.replace("/logged-in?token=" + authResult['access_token']);
+    console.log(gapi.auth.getToken());
   } else {
     // Update the app to reflect a signed out user
     // Possible error values:
