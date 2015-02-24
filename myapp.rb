@@ -72,10 +72,12 @@ before '/account/*' do
 end
 
 get '/account/profile' do
+	@session = session
  	erb :profile
 end
 
 get '/account/give' do
+	@session = session
  	erb :give
 end
 
