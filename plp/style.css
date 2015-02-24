@@ -6963,9 +6963,9 @@ div.profileWidget {
   border: 5px solid #fff;
   border-radius: 12px;
   box-shadow: 0 1px 1px rgba(136,153,166,0.15);
-  max-height: 200px;
+  height: 200px;
   position: relative;
-  max-width: 200px;
+  width: 200px;
 }
 
 .profileAvatar-image {
