@@ -35,6 +35,9 @@ end
 # ------------------------------
 
 # Log In
+before '/*' do
+	validate_session(session,sessionToken)
+end
 
 get '/login' do
  	erb :login
@@ -72,7 +75,14 @@ before '/account/*' do
 end
 
 get '/account/profile' do
+	#Fetch the member details
+	fetch_deets(sessionToken)
+
+	#Pass session details to view
+	@member = sessionMember
 	@session = session
+
+	#Load view
  	erb :profile
 end
 
@@ -96,14 +106,28 @@ helpers do
 
   # Validate the sessions
   def validate_session(session,token)
-    unless session == true && token != ""
+    if session != true && token = ""
 		redirect '/'
+	else 
+		redirect '/profile'
 	end
   end
 
   # Fetch the member details
   def fetch_deets(token)
-  	# GET https://www.googleapis.com/plus/v1/people/userId?access_token=token
+  	# GET 
+  	url = "https://www.googleapis.com/plus/v1/people/me?access_token=" + token
+  	# Make Request
+  	begin
+		response = RestClient.get(
+			url, 
+			:content_type => :json, :accept => :json)
+	rescue => e
+		# Log the response
+		e.response
+	end
+	# Stuff response in
+	sessionMember = response.to_str
   end  
 
   # Validate the sessions
