@@ -70,7 +70,7 @@ end
 # Account Goodness
 
 before '/account/*' do
-	validate_session(session,sessionToken)
+	validate_session(settings.session,settings.sessionToken)
 end
 
 get '/account/profile' do
