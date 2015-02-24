@@ -17,14 +17,16 @@ require "./rblcp"
 
 # |||| Default Settings ||||
 
-set :views, Proc.new { File.join(settings.root, "/plp") }
-set :public_folder, Proc.new { File.join(root, "plp") }
-set :show_exceptions, true
-set :static_cache_control, [:public, max_age: 0]
+configure do
+	set :views, Proc.new { File.join(settings.root, "/plp") }
+	set :public_folder, Proc.new { File.join(root, "plp") }
+	set :show_exceptions, true
+	set :static_cache_control, [:public, max_age: 0]
 
-session = false
-sessionToken = ""
-sessionMember = ""
+	set :session = false
+	set :sessionToken = ""
+	set :sessionMember = ""
+end
 
 configure :production do
   use Rack::SslEnforcer
@@ -46,8 +48,8 @@ get '/logged-in' do
 
 	unless accessToken.nil?
 		# Set Session
-		session = true
-		sessionToken = accessToken
+		settings.session = true
+		settings.sessionToken = accessToken
 
 		# Fetch account given token
 		# fetch_deets(accessToken)
@@ -76,15 +78,15 @@ get '/account/profile' do
 	fetch_deets(sessionToken)
 
 	#Pass session details to view
-	@member = sessionMember
-	@session = session
+	@member = settings.sessionMember
+	@session = settings.session
 
 	#Load view
  	erb :profile
 end
 
 get '/account/give' do
-	@session = session
+	@session = settings.session
  	erb :give
 end
 
@@ -119,10 +121,10 @@ helpers do
 			:content_type => :json, :accept => :json)
 	rescue => e
 		# Log the response
-		sessionMember = e.response.to_str
+		e.response
 	end
 	# Stuff response in
-	sessionMember = response.to_str
+	settings.sessionMember = response.to_str
   end  
 
   # Validate the sessions
