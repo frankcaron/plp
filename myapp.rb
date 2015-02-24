@@ -10,7 +10,9 @@
 # |||| Reqs ||||
 
 require "sinatra"
+require "rack-ssl-enforcer"
 require "rest_client"
+
 require "./rblcp"
 
 # |||| Default Settings ||||
@@ -22,6 +24,10 @@ set :static_cache_control, [:public, max_age: 0]
 
 session = false
 sessionMember = ""
+
+configure :production do
+  use Rack::SslEnforcer
+end
 
 # ------------------------------
 # Main Routes
@@ -47,7 +53,7 @@ get '/logged-in' do
 	# create_account()
 
 	# Redirect to profile once account created successfully
-	redirect '/profile'
+	# redirect '/profile'
 end
 
 # Account Goodness
