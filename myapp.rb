@@ -57,7 +57,11 @@ get '/logged-in' do
 		settings.sessionMember = fetch_deets(settings.sessionToken)
 
 		#Do an MV
-		settings.sessionMV = create_mv(settings.sessionMember["emails"][0]["value"].to_s)
+		settings.sessionMV = create_mv(
+			settings.sessionMember["name"]["givenName"],
+			settings.sessionMember["name"]["familyName"],
+			settings.sessionMember["emails"][0]["value"].to_s),
+			2000)
 
 		# Redirect to profile once account created successfully
 		redirect '/account/profile'
@@ -110,6 +114,15 @@ helpers do
 	end
   end
 
+  # Kill the session
+  def kill_session()
+  	settings.session = false
+	settings.sessionToken = ""
+	settings.sessionMember = ""
+	settings.sessionMV = ""
+	redirect '/'
+  end  
+
   # Fetch the member details
   def fetch_deets(token)
   	# GET 
@@ -128,13 +141,28 @@ helpers do
 	return ""
   end  
 
-  # Validate the sessions
-  def create_account()
-  	# https://plp-api.herokuapp.com/register
+  # Helper method to create an account when one doesn't exist
+  def create_account(firstName,lastName,email,points)
+  	# Create an account with Mihnea's LP
+  	url = "https://plp-api.herokuapp.com/register"
+	content_type = "application/json"
+	body = { "memberId" => email, "firstName" => firstName, "lastName" => lastName, "points" => points,  }.to_json
+	
+	# Make Request
+	begin
+		response = RestClient.post(
+			url, body, 
+			:content_type => :json, :accept => :json)
+			puts response.to_str
+		rescue => e
+			# Log the response
+			e.response
+			kill_session()
+		end
   end
 
   # Create an MV given some member details
-  def create_mv(email)
+  def create_mv(firstName,lastName,email,points)
 
   	# Set up basics
   	url = "https://staging.lcp.points.com/v1/lps/53678d34-92c7-46c3-942b-d195ccf33637/mvs/"
@@ -158,7 +186,7 @@ helpers do
 
 		# If the member doesn't exist, create an account.
 		if e.response.code == 422 
-			# create_account()
+			create_account(firstName,lastName,email,points)
 		end 
 	end
 	return ""
