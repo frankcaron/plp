@@ -75,7 +75,7 @@ end
 
 get '/account/profile' do
 	#Fetch the member details
-	fetch_deets(sessionToken)
+	settings.sessionMember = fetch_deets(settings.sessionToken)
 
 	#Pass session details to view
 	@member = settings.sessionMember
@@ -124,7 +124,7 @@ helpers do
 		e.response
 	end
 	# Stuff response in
-	settings.sessionMember = response.to_str
+	return response.to_str
   end  
 
   # Validate the sessions
