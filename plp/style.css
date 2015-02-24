@@ -7018,3 +7018,7 @@ div.ui-slider {
 input#points {
   color: #BBB;
 }
+
+.ui-overlay-a {
+  background: #fff !important;
+}
