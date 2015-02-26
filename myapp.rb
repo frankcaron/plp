@@ -23,11 +23,7 @@ configure do
 	set :public_folder, Proc.new { File.join(root, "plp") }
 	set :show_exceptions, true
 	set :static_cache_control, [:public, max_age: 0]
-
-	set :session, false
-	set :sessionToken, ""
-	set :sessionMember, ""
-	set :sessionMV, ""
+	enable :sessions
 end
 
 configure :production do
@@ -50,19 +46,29 @@ get '/logged-in' do
 
 	unless accessToken.nil?
 		# Set Session
-		settings.session = true
-		settings.sessionToken = accessToken
+		session[:session] = true
+		session[:sessionToken] = accessToken
+
+		# Logging 
+		puts "Session: " + session[:session].to_s
+		puts "Session Token: " + session[:sessionToken]
 
 		#Fetch the member details
-		settings.sessionMember = fetch_deets(settings.sessionToken)
+		session[:sessionMember] = fetch_deets(session[:sessionToken])
+
+		# Logging 
+		puts "Session Member: " + session[:sessionMember].to_s
+		puts "Session Member Name: " + session[:sessionMember]["name"]["givenName"]
+
 
 		#Do an MV
-		settings.sessionMV = create_mv(settings.sessionMember["name"]["givenName"],
-									   settings.sessionMember["name"]["familyName"],
-									   settings.sessionMember["emails"][0]["value"].to_s,
+		session[:sessionMV] = create_mv(session[:sessionMember]["name"]["givenName"],
+									   session[:sessionMember]["name"]["familyName"],
+									   session[:sessionMember]["emails"][0]["value"].to_s,
 									   2000)
 
-		puts settings.sessionMV.to_s
+		# Logging
+		puts session[:sessionMV].to_s
 
 		# Redirect to profile once account created successfully
 		redirect '/account/profile'
@@ -74,14 +80,14 @@ end
 # Account Goodness
 
 before '/account/*' do
-	validate_session(settings.session,settings.sessionToken)
+	validate_session(session[:session],session[:sessionToken])
 end
 
 get '/account/profile' do
 	#Pass session details to view
-	@member = settings.sessionMember
-	@mv = settings.sessionMV
-	@session = settings.session
+	@member = session[:sessionMember]
+	@mv = session[:sessionMV]
+	@session = session[:session]
 
 	#Load view
  	erb :profile
@@ -89,9 +95,9 @@ end
 
 get '/account/give' do
 	#Pass session details to view
-	@member = settings.sessionMember
-	@mv = settings.sessionMV
-	@session = settings.session
+	@member = session[:sessionMember]
+	@mv = session[:sessionMV]
+	@session = session[:session]
 
 	# Load view
  	erb :give
@@ -124,10 +130,10 @@ helpers do
 
   # Kill the session
   def kill_session()
-  	settings.session = false
-	settings.sessionToken = ""
-	settings.sessionMember = ""
-	settings.sessionMV = ""
+  	session[:session] = false
+	session[:sessionToken] = ""
+	session[:sessionMember] = ""
+	session[:sessionMV] = ""
   end  
 
   # Fetch the member details
