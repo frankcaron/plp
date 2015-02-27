@@ -103,10 +103,13 @@ get '/account/give' do
  	erb :give
 end
 
+get '/account/logout' do
+	kill_session()
+end
+
 # Catch All
 
 get '/error' do
-	kill_session()
  	erb :error
 end
 
@@ -129,11 +132,12 @@ helpers do
   end
 
   # Kill the session
-  def kill_session()
+  def kill_session
   	session[:session] = false
 	session[:sessionToken] = ""
 	session[:sessionMember] = ""
 	session[:sessionMV] = ""
+	kill_google_session()
   end  
 
   # Fetch the member details
@@ -206,6 +210,12 @@ helpers do
 			# Redirect to the error page
 			redirect '/error'
 		end
+  end
+
+  # Kill the google session
+  def kill_google_session
+  	# GET 
+  	redirect 'https://accounts.google.com/Logout?&continue=https://plp.herokuapp.com'
   end
 
 end
