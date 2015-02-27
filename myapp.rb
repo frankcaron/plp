@@ -109,6 +109,11 @@ get '/account/give' do
  	erb :give
 end
 
+get '/account/give-points' do
+	#Pass session details to view
+	# admin_credit_member("Mladen","R","m@r.com",1234)
+end
+
 get '/account/logout' do
 	kill_session()
 	erb :logout
