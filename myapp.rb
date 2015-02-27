@@ -37,6 +37,7 @@ end
 # Log In
 
 get '/login' do
+	kill_session()
  	erb :login
 end
 
