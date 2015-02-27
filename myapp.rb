@@ -3,20 +3,23 @@
 # Frank Caron
 # Feb 2015
 #
-# A simple Storefront app for connecting to the Points LCP
+# A simple Storefront and Fulfillment app for connecting to the Points LCP
 # 
 # ==============================
 
-# |||| Reqs ||||
+# |||| Depedencies ||||
 
 require "sinatra"
 require "rack-ssl-enforcer"
 require "rest_client"
 require "json"
 
+# RbLCP
 require "./rblcp"
 
+# ------------------------------------------------------------------------------------------
 # |||| Default Settings ||||
+# ------------------------------------------------------------------------------------------
 
 configure do
 	set :views, Proc.new { File.join(settings.root, "/plp") }
@@ -30,9 +33,10 @@ configure :production do
   use Rack::SslEnforcer
 end
 
-# ------------------------------
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
 # Main Routes
-# ------------------------------
+# ------------------------------------------------------------------------------------------
 
 # Log In
 
@@ -119,21 +123,39 @@ get '/*' do
  	erb :index
 end
 
-# ------------------------------
+
+
+
+
+
+
+
+# ------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
 # Helpers
-# ------------------------------
+# ------------------------------------------------------------------------------------------
 # Helper functions
 
 helpers do
 
-  # Validate the sessions
+  # =====================
+  # Session Validator
+  #
+  # Used to validate that a session is legitimate for security.
+  # ======================
+
   def validate_session(session,token)
     unless session  && token != ""
 		redirect '/'
 	end
   end
 
-  # Kill the session
+  # =====================
+  # Session Killer
+  #
+  # Used to kill a session for logout, etc.
+  # ======================
+
   def kill_session
   	session[:session] = false
 	session[:sessionToken] = ""
@@ -141,7 +163,14 @@ helpers do
 	session[:sessionMV] = ""
   end  
 
-  # Fetch the member details
+
+  # =====================
+  # Fetch Google Account Details
+  #
+  # Used for Google Account login to fetch the member's details from Google
+  # Primarily used for Single Sign-on
+  # ======================
+
   def fetch_deets(token)
   	# GET 
   	url = "https://www.googleapis.com/plus/v1/people/me?access_token=" + token
@@ -160,7 +189,13 @@ helpers do
 	end
   end  
 
-  # Create an MV given some member details
+  # =====================
+  # Create MV
+  #
+  # Creates an MV given the input
+  # Special instance here will automatically create an account in the PLP
+  # ======================
+
   def create_mv(firstName,lastName,email,points)
 
   	# Set up basics
@@ -192,7 +227,12 @@ helpers do
 	end
   end
 
-  # Helper method to create an account when one doesn't exist
+  # =====================
+  # Create Account
+  #
+  # Creates an account for a member in the PLP via its APIs
+  # ======================
+
   def create_account(firstName,lastName,email,points)
   	# Create an account with Mihnea's LP
   	url = "https://plp-api.herokuapp.com/register"
@@ -213,6 +253,36 @@ helpers do
 		end
   end
 
+  # =====================
+  # Credit member
+  #
+  # Creates a credit and order for a member
+  # This special admin version is used for the activity awarding
+  # ======================
+  def admin_credit_member(memberFirstName,memberLastName,memberEmail,points)
+  	# If the member is an admin
+  	unless session[:sessionMV]["admin"].nil?
+  		# Create an order
+  		# If successful, create a credit
+  			# If successful, let the user know
+  			# If unsuccessful, let the user know why
+		# If unsuccessful, system error 
+		# redirect '/error'
+  	end
+  end
+
+  def create_coder
+  end
+
+  def create_recipient_mv
+  end
+
+  def create_credit
+  end
+
+
+
+#
 end
 
 
