@@ -26,7 +26,8 @@ configure do
 	set :public_folder, Proc.new { File.join(root, "plp") }
 	set :show_exceptions, true
 	set :static_cache_control, [:public, max_age: 0]
-	enable :sessions
+	# enable :sessions
+	use Rack::Session::Pool
 end
 
 configure :production do
@@ -200,20 +201,12 @@ helpers do
 
   	# Set up basics
   	url = "https://staging.lcp.points.com/v1/lps/53678d34-92c7-46c3-942b-d195ccf33637/mvs/"
-	mac_key_identifier = ENV["PLP_MAC_ID"]
-	mac_key = ENV["PLP_MAC_KEY"]
-	content_type = "application/json"
+	method = "POST"
 	body = { "memberId" => email }.to_json
 
-	# Generate Headers
-	headers = generate_authorization_header_value("POST",url,mac_key_identifier,mac_key,content_type,body)
-  
   	# Make Request
   	begin
-		response = RestClient.post(
-			url, body, 
-			:content_type => :json, :accept => :json, :"Authorization" => headers)
-		return JSON.parse(response.to_str)
+		call_lcp(method,url,body)
 	rescue => e
 		# If the member doesn't exist, create an account.
 		if e.response.code == 422 
@@ -262,7 +255,9 @@ helpers do
   def admin_credit_member(memberFirstName,memberLastName,memberEmail,points)
   	# If the member is an admin
   	unless session[:sessionMV]["admin"].nil?
+  		# Perform MV
   		# Create an order
+  		# Patch MV
   		# If successful, create a credit
   			# If successful, let the user know
   			# If unsuccessful, let the user know why
@@ -271,17 +266,48 @@ helpers do
   	end
   end
 
-  def create_coder
+  def create_order
   end
 
   def create_recipient_mv
   end
 
+  def patch_mv(order,mv)
+  end
+
   def create_credit
   end
 
+  # =====================
+  # Call LCP
+  #
+  # Generic LCP call wrapper
+  # ======================
 
+	def call_lcp(method,url,body)
+		mac_key_identifier = ENV["PLP_MAC_ID"]
+		mac_key = ENV["PLP_MAC_KEY"]
+		content_type = "application/json"
+		method = method.upcase
 
+		# Generate Headers
+		headers = generate_authorization_header_value(method,url,mac_key_identifier,mac_key,content_type,body)
+
+	  	# Make Request
+	  	if method == "POST"
+		  	return RestClient.post(url, 
+								   body, 
+								   :content_type => :json, 
+								   :accept => :json,
+								   :"Authorization" => headers)
+		else 
+			return RestClient.get(url, 
+								  body, 
+								  :content_type => :json, 
+								  :accept => :json,
+								  :"Authorization" => headers)
+		end
+	end 
 #
 end
 
