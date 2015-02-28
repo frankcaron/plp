@@ -280,7 +280,7 @@ helpers do
   def patch_mv(order,mv)
   end
 
-  def create_credit
+  def create_credit(lp,mv,amount)
   end
 
   # =====================
