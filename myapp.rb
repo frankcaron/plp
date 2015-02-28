@@ -67,14 +67,17 @@ get '/logged-in' do
 		puts "Session Member Name: " + session[:sessionMember]["name"]["givenName"]
 
 
+		user = {"firstName" => session[:sessionMember]["name"]["givenName"], "lastName" => session[:sessionMember]["name"]["familyName"], "email" => session[:sessionMember]["emails"][0]["value"].to_s}
+		
 		#Do an MV
-		session[:sessionMV] = create_mv(session[:sessionMember]["name"]["givenName"],
-									   session[:sessionMember]["name"]["familyName"],
-									   session[:sessionMember]["emails"][0]["value"].to_s,
-									   2000)
+		session[:sessionMV] = create_mv(user, 1)
 
 		# Logging
+		puts "SESSION MV"
 		puts session[:sessionMV].to_s
+
+		puts "SESSION Balance"
+		puts session[:sessionMV]["balance"].to_s
 
 		# Redirect to profile once account created successfully
 		redirect '/account/profile'
@@ -111,12 +114,21 @@ end
 
 get '/account/give-points' do
 	#Pass session details to view
-	# admin_credit_member("Mladen","R","m@r.com",1234)
+
+	recipient = { "firstName" => "Mladen", "lastName" => "R", "email" => "m@r.com"}
+	admin_credit_member(recipient, points, message)
 end
 
 get '/account/logout' do
 	kill_session()
 	erb :logout
+end
+
+
+get '/test' do
+	create_order
+
+	erb :test
 end
 
 # Catch All
@@ -202,20 +214,27 @@ helpers do
   # Special instance here will automatically create an account in the PLP
   # ======================
 
-  def create_mv(firstName,lastName,email,points)
+  def create_mv(user, newUser)
+
+  	puts "creating MV"
 
   	# Set up basics
   	url = "https://staging.lcp.points.com/v1/lps/53678d34-92c7-46c3-942b-d195ccf33637/mvs/"
 	method = "POST"
-	body = { "memberId" => email }.to_json
+	body = { "memberId" => user["email"] }.to_json
 
+	puts body.to_s
   	# Make Request
   	begin
+  		puts "making call"
 		call_lcp(method,url,body)
 	rescue => e
 		# If the member doesn't exist, create an account.
-		if e.response.code == 422 
-			create_account(firstName,lastName,email,points)
+		if e.response.code == 422
+			if newUser == 1
+				points = 2000
+				create_account(user["firstName"],user["lastName"],user["email"],points)
+			end				
 		else 
 			# Log the response
 			puts "LOG | MV create error | " + e.response
@@ -257,10 +276,12 @@ helpers do
   # Creates a credit and order for a member
   # This special admin version is used for the activity awarding
   # ======================
-  def admin_credit_member(memberFirstName,memberLastName,memberEmail,points)
+  def admin_credit_member(recipient, points, message)
   	# If the member is an admin
   	unless session[:sessionMV]["admin"].nil?
-  		# Perform MV
+
+  		recipientMV = create_mv(recipient, 0)
+
   		# Create an order
   		# Patch MV
   		# If successful, create a credit
@@ -272,15 +293,25 @@ helpers do
   end
 
   def create_order
-  end
+  	url = "https://staging.lcp.points.com/v1/orders/"
+	method = "POST"
 
-  def create_recipient_mv
+	type = "PointsIncentive"
+
   end
 
   def patch_mv(order,mv)
+  	url = mv
+	method = "PATCH"
+
+	body = { "order" => order }
+
+	call_lcp(method,url,body)
   end
 
   def create_credit(lp,mv,amount)
+  	url = "https://staging.lcp.points.com/v1/lps/53678d34-92c7-46c3-942b-d195ccf33637/credits/"
+	method = "POST"
   end
 
   # =====================
@@ -289,7 +320,7 @@ helpers do
   # Generic LCP call wrapper
   # ======================
 
-	def call_lcp(method,url,body)
+  def call_lcp(method,url,body)
 		mac_key_identifier = ENV["PLP_MAC_ID"]
 		mac_key = ENV["PLP_MAC_KEY"]
 		content_type = "application/json"
@@ -305,7 +336,13 @@ helpers do
 								   :content_type => :json, 
 								   :accept => :json,
 								   :"Authorization" => headers)
-		else 
+		elsif method == "PATCH"	 	 
+			return RestClient.patch(url, 
+								  body, 
+								  :content_type => :json, 
+								  :accept => :json,
+								  :"Authorization" => headers)
+		else
 			return RestClient.get(url, 
 								  body, 
 								  :content_type => :json, 
@@ -315,8 +352,3 @@ helpers do
 	end 
 #
 end
-
-
-
-
-
