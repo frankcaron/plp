@@ -70,14 +70,14 @@ get '/logged-in' do
 		user = {"firstName" => session[:sessionMember]["name"]["givenName"], "lastName" => session[:sessionMember]["name"]["familyName"], "email" => session[:sessionMember]["emails"][0]["value"].to_s}
 		
 		#Do an MV
-		session[:sessionMV] = create_mv(user, 1)
+		session[:sessionMV] = JSON.parse(create_mv(user, 1))
 
 		# Logging
 		puts "SESSION MV"
 		puts session[:sessionMV].to_s
 
 		puts "SESSION Balance"
-		puts session[:sessionMV]["balance"].to_s
+		puts session[:sessionMV]["balance"]
 
 		# Redirect to profile once account created successfully
 		redirect '/account/profile'
@@ -116,7 +116,7 @@ get '/account/give-points' do
 	#Pass session details to view
 
 	recipient = { "firstName" => "Mladen", "lastName" => "R", "email" => "m@r.com"}
-	admin_credit_member(recipient, points, message)
+	admin_credit_member(recipient, 1000, "Get me")
 end
 
 get '/account/logout' do
@@ -280,7 +280,7 @@ helpers do
   	# If the member is an admin
   	unless session[:sessionMV]["admin"].nil?
 
-  		recipientMV = create_mv(recipient, 0)
+  		recipientMV = JSON.parse(create_mv(recipient, 0))
 
   		# Create an order
   		# Patch MV
