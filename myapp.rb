@@ -79,6 +79,9 @@ get '/logged-in' do
 		puts "SESSION Balance"
 		puts session[:sessionMV]["balance"]
 
+		puts "SESSION first name"
+		puts session[:sessionMV]["firstName"]
+
 		# Redirect to profile once account created successfully
 		redirect '/account/profile'
 	end
@@ -114,9 +117,12 @@ end
 
 get '/account/give-points' do
 	#Pass session details to view
+	pic = "PointsForGood"
+	recipient = { "firstName" => "Frank", "lastName" => "Caron", "email" => "frank.caron@points.com"}
+	message = "Yo"
+	points = 1000
 
-	recipient = { "firstName" => "Mladen", "lastName" => "R", "email" => "m@r.com"}
-	admin_credit_member(recipient, 1000, "Get me")
+	admin_credit_member(recipient, points, pic, message)
 end
 
 get '/account/logout' do
@@ -124,12 +130,6 @@ get '/account/logout' do
 	erb :logout
 end
 
-
-get '/test' do
-	create_order
-
-	erb :test
-end
 
 # Catch All
 
@@ -223,11 +223,11 @@ helpers do
 	method = "POST"
 	body = { "memberId" => user["email"] }.to_json
 
-	puts body.to_s
   	# Make Request
   	begin
   		puts "making call"
 		call_lcp(method,url,body)
+		#puts "reponse code "+a.to_s
 	rescue => e
 		# If the member doesn't exist, create an account.
 		if e.response.code == 422
@@ -276,42 +276,110 @@ helpers do
   # Creates a credit and order for a member
   # This special admin version is used for the activity awarding
   # ======================
-  def admin_credit_member(recipient, points, message)
+  def admin_credit_member(recipient, points, pic, message)
   	# If the member is an admin
   	unless session[:sessionMV]["admin"].nil?
-
+  		#Create recipient MV
   		recipientMV = JSON.parse(create_mv(recipient, 0))
+  		
+  		#Create order
+  		order = create_order(recipientMV, points, pic, message)
+  		
+  		#Patch MVs
+  		patch_mv(session[:sessionMV],order)
+  		patch_mv(recipientMV,order)
+  		
+  		#Create Credit
+  		create_credit(recipientMV, points, pic)
 
-  		# Create an order
-  		# Patch MV
   		# If successful, create a credit
   			# If successful, let the user know
   			# If unsuccessful, let the user know why
 		# If unsuccessful, system error 
 		# redirect '/error'
   	end
+
   end
 
-  def create_order
+  # =====================
+  # Create Order
+  #
+  # Creates a new order on the LCP
+  # ======================
+  def create_order(recipientMV, points, pic, message)
+	orderType = "PointsIncentive"
+	
+	#Order Data Section
+	loyaltyProgram = session[:sessionMV]["loyaltyProgram"]
+	user = session[:sessionMV] #Why can't I get the first and last name from here?
+	recipient = {"firstName" => recipientMV["firstName"],
+	 "lastName" => recipientMV["lastName"], 
+	 "email" => recipientMV["email"], 
+	 "balance" => recipientMV["balance"]}
+	orderDetails = {"basePoints" => points, "recipientMessage" => message, "pic" => pic}
+	
+	orderData = {"loyaltyProgram" => loyaltyProgram, "user" => user, "recipient" => recipient, "orderDetails" => orderDetails}
+
   	url = "https://staging.lcp.points.com/v1/orders/"
 	method = "POST"
-
-	type = "PointsIncentive"
+	body = {"orderType" => orderType, "data" => orderData}
+	
+	begin
+  		puts "making order"
+		call_lcp(method,url,body)
+	rescue => e
+		if e.response.code == 500
+			puts "LOG | ORDER create returned 500"			
+		else 
+			# Log the response
+			puts "LOG | ORDER create error | " + e.response
+			# Redirect to the error page
+			redirect '/error'
+		end
+	end
 
   end
 
-  def patch_mv(order,mv)
-  	url = mv
+  # =====================
+  # Patch MV
+  #
+  # Patches and MV with an order resource
+  # ======================
+  def patch_mv(mv,order)
+  	url = mv["links"]["self"]["href"]
 	method = "PATCH"
 
-	body = { "order" => order }
+	body = { "order" => order["links"]["self"]["href"] }
 
 	call_lcp(method,url,body)
   end
 
-  def create_credit(lp,mv,amount)
+  # =====================
+  # Create Credit
+  #
+  # Creates a new credit on the LCP
+  # ======================
+  def create_credit(recipientMV,points,pic)
+  	memberValidation = recipientMV["links"]["self"]["href"]
+
   	url = "https://staging.lcp.points.com/v1/lps/53678d34-92c7-46c3-942b-d195ccf33637/credits/"
 	method = "POST"
+	body = {"amount" => points, "pic" => pic, "memberValidation" => memberValidation}
+
+	begin
+  		puts "making credit"
+		call_lcp(method,url,body)
+	rescue => e
+		if e.response.code == 500
+			puts "LOG | CREDIT create returned 500"			
+		else 
+			# Log the response
+			puts "LOG | CREDIT create error | " + e.response
+			# Redirect to the error page
+			redirect '/error'
+		end
+	end
+
   end
 
   # =====================
