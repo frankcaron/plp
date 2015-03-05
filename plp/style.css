@@ -7062,7 +7062,6 @@ div.activityWidget {
 
 div.activityDescription {
   display: inline-block;
-  border: 1px solid #ff0000;
   max-width: 400px;
   margin-left: 20px;
   margin-top: 15px;
