@@ -1,0 +1,17 @@
+<h1>Get Points</h1>
+<p class="lead">
+	<p>Recognize a fellow Poinster!</p>
+
+	<p class="leader_text">Think your fellow employee did an amazing job worthy of recognition? Give 'em some Points! Employees with the most points at the end of the year will receive special recognition and rewards, so don't hesistate to celebrate hard work with a gift of points!</p>
+
+</p>
+
+<div class="get">
+	<form class="give" method="post" action="/account/give-points">
+     	<input class="textfield" type="text" name="firstName" placeholder=" Your recipient's first name" />
+     	<input class="textfield" type="text" name="lastName" placeholder=" Your recipient's last name" />
+     	<input class="textfield" type="text" name="email" placeholder=" Your recipient's email" />
+     	<input type="range" name="points" id="points" value="1000" min="0" max="<%= @mv["balance"] %>" data-highlight="true">
+		<input class="submit" type="submit" value="Give">
+	</form>
+</div>

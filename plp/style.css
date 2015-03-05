@@ -7022,3 +7022,53 @@ input#points {
 .ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
   background: #fff !important;
 }
+
+/* ================= Activity =============== */
+
+.profileAvatarActivity {
+  background: #fff;
+  border: 5px solid #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 1px rgba(136,153,166,0.15);
+  height: 100px;
+  position: relative;
+  width: 100px;
+  display: inline-block;
+}
+
+div.profileActivityImage {
+  float: left;
+  max-width: 150px;
+}
+
+div.activityWidgets {
+  padding: 0px;
+}
+
+div.activityWidget {
+  display: inline-block;
+  text-align: left;
+  width: 575px;
+  background: #ddd;
+  border: 5px solid #ddd;
+  border-radius: 12px;
+  margin: 5px;
+  margin-bottom: 10px !important;
+  margin-top: 0px;
+  padding: 0px;
+  padding-left: 20px;
+  padding-top: 15px;
+}
+
+div.activityDescription {
+  display: inline-block;
+  border: 1px solid #ff0000;
+  max-width: 400px;
+  margin-left: 20px;
+  margin-top: 15px;
+}
+
+div.activityDescription p {
+  text-align: left;
+  display: inline-block;
+}
