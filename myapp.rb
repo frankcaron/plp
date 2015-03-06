@@ -22,11 +22,18 @@ require "./rblcp"
 # ------------------------------------------------------------------------------------------
 
 configure do
+    # File locations
     set :views, Proc.new { File.join(settings.root, "/plp") }
     set :public_folder, Proc.new { File.join(root, "plp") }
     set :show_exceptions, true
     set :static_cache_control, [:public, max_age: 0]
-    # enable :sessions
+
+    # PICs
+    set :base_give_pic, "PointsForGood"
+    set :base_url, "https://staging.lcp.points.com/v1"
+    set :plp_registration_url, "https://plp-api.herokuapp.com/register"
+
+    # Enable :sessions
     use Rack::Session::Pool
 end
 
@@ -56,15 +63,15 @@ get '/logged-in' do
         session[:sessionToken] = accessToken
 
         # Logging 
-        puts "Session: " + session[:session].to_s
-        puts "Session Token: " + session[:sessionToken]
+        puts "LOG | Session: " + session[:session].to_s
+        puts "LOG | Session Token: " + session[:sessionToken]
 
         #Fetch the member details
         session[:sessionMember] = fetch_deets(session[:sessionToken])
 
         # Logging 
-        puts "Session Member: " + session[:sessionMember].to_s
-        puts "Session Member Name: " + session[:sessionMember]["name"]["givenName"]
+        puts "LOG | Session Member: " + session[:sessionMember].to_s
+        puts "LOG | Session Member Name: " + session[:sessionMember]["name"]["givenName"]
 
 
     user = {"firstName" => session[:sessionMember]["name"]["givenName"], "lastName" => session[:sessionMember]["name"]["familyName"], "email" => session[:sessionMember]["emails"][0]["value"].to_s}
@@ -73,13 +80,13 @@ get '/logged-in' do
     session[:sessionMV] = JSON.parse(create_mv(user, 1))
 
     # Logging
-    puts "SESSION MV"
+    puts "LOG | SESSION MV"
     puts session[:sessionMV].to_s
 
-    puts "SESSION Balance"
+    puts "LOG | SESSION Balance"
     puts session[:sessionMV]["balance"]
 
-    puts "SESSION first name"
+    puts "LOG | SESSION first name"
     puts session[:sessionMV]["firstName"]
 
     # Redirect to profile once account created successfully
@@ -141,19 +148,43 @@ get '/account/get' do
     erb :get_points
 end
 
-get '/account/give-points' do
-    #Pass session details to view
-    pic = "PointsForGood"
-    recipient = { "firstName" => "Frank", "lastName" => "Caron", "email" => "frank.caron@points.com"}
-    message = "Yo"
-    points = 1000
+post '/account/give-points' do
+    #Grab params
+    firstName = params[:firstName]
+    lastName = params[:lastName]
+    email = params[:email]
+    points = params[:points]
+    message = params[:message]
 
-    admin_credit_member(recipient, points, pic, message)
+    #Params
+    puts "LOG | Form Post | First Name " + firstName
+    puts "LOG | Form Post | Last Name " + lastName
+    puts "LOG | Form Post | Email " + email
+
+    # Structure data
+    pic = settings.base_give_pic
+    recipient = { "firstName" => firstName, "lastName" => lastName, "email" => email }
+
+    # Do the Gift
+    begin
+        puts "LOG | Gifting to a member " + recipient.to_s
+        credit_member(recipient, points, pic, message)
+
+        puts "LOG | Successfully gifted " + points
+
+        # Redirect to the account page
+        redirect '/account/profile'
+    rescue => e
+        # Log the response
+        puts "LOG | Failed to credit member | " + e.to_s
+        # Redirect to the error page
+        redirect '/error'
+    end   
 end
 
-get '/account/get-points' do
+post '/account/get-points' do
     # Pass session details to view
-    # admin_credit_member("Mladen","R","m@r.com",1234)
+    # credit_member(self)
 end
 
 # Catch All
@@ -220,7 +251,7 @@ helpers do
         return JSON.parse(response.to_str)
     rescue => e
         # Log the response
-        puts "LOG | Details fetch error | " + e.response
+        puts "LOG | Details fetch error | " + e.to_s
         # Redirect to the error page
         redirect '/error'
     end
@@ -235,14 +266,14 @@ helpers do
 
   def create_mv(user, newUser)
 
-    puts "creating MV"
+    puts "LOG | Creating MV"
 
     # Set up basics
-    url = "https://staging.lcp.points.com/v1/lps/53678d34-92c7-46c3-942b-d195ccf33637/mvs/"
+    url = settings.base_url + "/lps/53678d34-92c7-46c3-942b-d195ccf33637/mvs/"
     method = "POST"
     body = { "memberId" => user["email"] }.to_json
 
-    puts body
+    puts "LOG | MV body to create | " + body
 
     # Make Request
     begin
@@ -250,7 +281,7 @@ helpers do
       puts "*********" + response.code.to_s + "%%%%%%"
     rescue => e
       # If the member doesn't exist, create an account.
-      puts "error"
+      puts "LOG | Error creating MV | Trying to create account"
       if e.code == 422
         if newUser == 1
           points = 2000
@@ -258,7 +289,7 @@ helpers do
         end       
       else 
         # Log the response
-        puts "LOG | MV create error | " + e.response
+        puts "LOG | MV create error | " + e.to_s
         # Redirect to the error page
         redirect '/error'
       end
@@ -275,7 +306,7 @@ helpers do
 
   def create_account(firstName,lastName,email,points)
     # Create an account with Mihnea's LP
-    url = "https://plp-api.herokuapp.com/register"
+    url = settings.plp_registration_url
     content_type = "application/json"
     body = { "memberId" => email, "firstName" => firstName, "lastName" => lastName, "points" => points,  }.to_json
     
@@ -284,13 +315,13 @@ helpers do
         response = RestClient.post(
             url, body, 
             :content_type => :json, :accept => :json)
-            puts response.to_str
-        rescue => e
-            # Log the response
-            puts "LOG | Account create error | " + e.response
-            # Redirect to the error page
-            redirect '/error'
-        end
+            puts "LOG | Account create response | " + response.to_str
+    rescue => e
+        # Log the response
+        puts "LOG | Account create error | " + e.to_s
+        # Redirect to the error page
+        redirect '/error'
+    end
   end
 
   # =====================
@@ -299,11 +330,13 @@ helpers do
   # Creates a credit and order for a member
   # This special admin version is used for the activity awarding
   # ======================
-  def admin_credit_member(recipient, points, pic, message)
+  def credit_member(recipient, points, pic, message)
     # If the member is an admin
-    unless session[:sessionMV]["admin"].nil?
+    #unless session[:sessionMV]["admin"].nil?
       #Create recipient MV
       recipientMV = JSON.parse(create_mv(recipient, 0))
+
+      puts "LOG | Recipient MV Json | " + recipientMV.to_s
       
       #Create order
       order = create_order(recipientMV, points, pic, message)
@@ -314,14 +347,7 @@ helpers do
       
       #Create Credit
       create_credit(recipientMV, points, pic)
-
-      # TODO: If successful, create a credit
-        # If successful, let the user know
-        # If unsuccessful, let the user know why
-    # If unsuccessful, system error 
-    # redirect '/error'
-    end
-
+    #end
   end
 
   # =====================
@@ -330,41 +356,43 @@ helpers do
   # Creates a new order on the LCP
   # ======================
   def create_order(recipientMV, points, pic, message)
-  orderType = "PointsIncentive"
-  
-  #Order Data Section
-  loyaltyProgram = session[:sessionMV]["loyaltyProgram"]
-  user = {"firstName" => session[:sessionMember]["name"]["givenName"],    #TODO: cleanup to use this from the MV
-   "lastName" => session[:sessionMember]["name"]["familyName"], 
-   "email" => session[:sessionMV]["email"], 
-   "balance" => session[:sessionMV]["balance"]} 
-  recipient = {"firstName" => recipientMV["firstName"],
-   "lastName" => recipientMV["lastName"], 
-   "email" => recipientMV["email"], 
-   "balance" => recipientMV["balance"]}
-   basePIC = {"base" => pic}
-  orderDetails = {"basePoints" => points, "recipientMessage" => message, "pic" => basePIC}
-  
-  orderData = {"loyaltyProgram" => loyaltyProgram, "user" => user, "recipient" => recipient, "orderDetails" => orderDetails}
-
-    url = "https://staging.lcp.points.com/v1/orders/"
-  method = "POST"
-  body = {"orderType" => orderType, "data" => orderData}
-  
-  begin
-      puts "making order"
-    response = call_lcp(method,url,body)
-  rescue => e
-    if e.response.code == 500
-      puts "LOG | ORDER create returned 500"      
-    else 
-      # Log the response
-      puts "LOG | ORDER create error | " + e.response
+    orderType = "PointsIncentive"
+    
+    #Order Data Section
+    loyaltyProgram = session[:sessionMV]["loyaltyProgram"]
+    user = {"firstName" => session[:sessionMember]["name"]["givenName"],    #TODO: cleanup to use this from the MV
+            "lastName" => session[:sessionMember]["name"]["familyName"], 
+            "email" => session[:sessionMV]["email"], 
+            "balance" => session[:sessionMV]["balance"]} 
+    recipient = {"firstName" => recipientMV["firstName"],
+                 "lastName" => recipientMV["lastName"], 
+                 "email" => recipientMV["email"], 
+                 "balance" => recipientMV["balance"]}
+    basePIC = {"base" => pic}
+    orderDetails = {"basePoints" => points, "recipientMessage" => message, "pic" => basePIC}
+    orderData = {"loyaltyProgram" => loyaltyProgram, "user" => user, "recipient" => recipient, "orderDetails" => orderDetails}
+    url = settings.base_url + "/orders/"
+    method = "POST"
+    body = {"orderType" => orderType, "data" => orderData}
+    
+    begin
+        puts "LOG | ORDER creating" 
+        response = call_lcp(method,url,body)
+    rescue => e
+      if e.code == 500
+        puts "LOG | ORDER create returned 500"      
+      else 
+        # Log the response
+        puts "LOG | ORDER create error | " + e.to_s
+      end
       # Redirect to the error page
       redirect '/error'
     end
-  end
-  ## TODO: add error cases for 400+ errors
+
+    # Log the response
+    puts "LOG | ORDER created |"
+
+    ## TODO: add error cases for 400+ errors
   end
 
   # =====================
@@ -374,22 +402,22 @@ helpers do
   # ======================
   def patch_mv(mv,order)
     url = mv["links"]["self"]["href"]
-  method = "PATCH"
+    method = "PATCH"
 
-  body = { "order" => order["links"]["self"]["href"] }
+    body = { "order" => order["links"]["self"]["href"] }
 
-  begin
-    response = call_lcp(method,url,body)
-  rescue => e
-    if e.code == 500
-      puts "LOG | CREDIT create returned 500"     
-    else 
-      # Log the response
-      puts "LOG | CREDIT create error | " + e.response
-      # Redirect to the error page
-      redirect '/error'
+    begin
+      response = call_lcp(method,url,body)
+    rescue => e
+      if e.code == 500
+        puts "LOG | CREDIT create returned 500"     
+      else 
+        # Log the response
+        puts "LOG | CREDIT create error | " + e.to_s
+        # Redirect to the error page
+        redirect '/error'
+      end
     end
-  end
   ## TODO: add error cases for 400+ errors
 
   end
@@ -402,22 +430,22 @@ helpers do
   def create_credit(recipientMV,points,pic)
     memberValidation = recipientMV["links"]["self"]["href"]
 
-    url = "https://staging.lcp.points.com/v1/lps/53678d34-92c7-46c3-942b-d195ccf33637/credits/"
-  method = "POST"
-  body = {"amount" => points, "pic" => pic, "memberValidation" => memberValidation}
+    url = settings.base_url + "/lps/53678d34-92c7-46c3-942b-d195ccf33637/credits/"
+    method = "POST"
+    body = {"amount" => points, "pic" => pic, "memberValidation" => memberValidation}
 
-  begin
-    response = call_lcp(method,url,body)
-  rescue => e
-    if e.code == 500
-      puts "LOG | CREDIT create returned 500"     
-    else 
-      # Log the response
-      puts "LOG | CREDIT create error | " + e.response
-      # Redirect to the error page
-      redirect '/error'
+    begin
+      response = call_lcp(method,url,body)
+    rescue => e
+      if e.code == 500
+        puts "LOG | CREDIT create returned 500"     
+      else 
+        # Log the response
+        puts "LOG | CREDIT create error | " + e.to_s
+        # Redirect to the error page
+        redirect '/error'
+      end
     end
-  end
   ## TODO: add error cases for 400+ errors, failure status, etc
   end
 
@@ -428,6 +456,14 @@ helpers do
   # ======================
 
   def call_lcp(method,url,body)
+
+    # Logging
+    puts "LOG | Calling to LCP | Prep"
+    puts "LOG | Calling to LCP | url: " + url
+    puts "LOG | Calling to LCP | method: " + method 
+    puts "LOG | Calling to LCP | body: " + body.to_s
+
+    # Prep vars
     mac_key_identifier = ENV["PLP_MAC_ID"]
     mac_key = ENV["PLP_MAC_KEY"]
     content_type = "application/json"
@@ -436,21 +472,26 @@ helpers do
     # Generate Headers
     headers = generate_authorization_header_value(method,url,mac_key_identifier,mac_key,content_type,body)
 
-      # Make Request
-      if method == "POST"
+    # Logging   
+    puts "LOG | Calling to LCP | headers: " + headers
+ 
+
+
+    # Make Request
+    if method == "POST"
         return RestClient.post(url, 
                    body, 
                    :content_type => :json, 
                    :accept => :json,
                    :"Authorization" => headers)
     elsif method == "PATCH"    
-      return RestClient.patch(url, 
+        return RestClient.patch(url, 
                   body, 
                   :content_type => :json, 
                   :accept => :json,
                   :"Authorization" => headers)
     else
-      return RestClient.get(url, 
+        return RestClient.get(url, 
                   body, 
                   :content_type => :json, 
                   :accept => :json,
