@@ -223,14 +223,15 @@ helpers do
 	method = "POST"
 	body = { "memberId" => user["email"] }.to_json
 
+	puts body
   	# Make Request
   	begin
-  		puts "making call"
-		call_lcp(method,url,body)
-		#puts "reponse code "+a.to_s
+		response = call_lcp(method,url,body)
+		puts "*********" + response.code.to_s + "%%%%%%"
 	rescue => e
 		# If the member doesn't exist, create an account.
-		if e.response.code == 422
+		puts "error"
+		if e.code == 422
 			if newUser == 1
 				points = 2000
 				create_account(user["firstName"],user["lastName"],user["email"],points)
@@ -242,6 +243,8 @@ helpers do
 			redirect '/error'
 		end
 	end
+	#TODO: Add more error scenarios
+	return response
   end
 
   # =====================
@@ -292,7 +295,7 @@ helpers do
   		#Create Credit
   		create_credit(recipientMV, points, pic)
 
-  		# If successful, create a credit
+  		# TODO: If successful, create a credit
   			# If successful, let the user know
   			# If unsuccessful, let the user know why
 		# If unsuccessful, system error 
@@ -311,12 +314,16 @@ helpers do
 	
 	#Order Data Section
 	loyaltyProgram = session[:sessionMV]["loyaltyProgram"]
-	user = session[:sessionMV] #Why can't I get the first and last name from here?
+	user = {"firstName" => session[:sessionMember]["name"]["givenName"],    #TODO: cleanup to use this from the MV
+	 "lastName" => session[:sessionMember]["name"]["familyName"], 
+	 "email" => session[:sessionMV]["email"], 
+	 "balance" => session[:sessionMV]["balance"]} 
 	recipient = {"firstName" => recipientMV["firstName"],
 	 "lastName" => recipientMV["lastName"], 
 	 "email" => recipientMV["email"], 
 	 "balance" => recipientMV["balance"]}
-	orderDetails = {"basePoints" => points, "recipientMessage" => message, "pic" => pic}
+	 basePIC = {"base" => pic}
+	orderDetails = {"basePoints" => points, "recipientMessage" => message, "pic" => basePIC}
 	
 	orderData = {"loyaltyProgram" => loyaltyProgram, "user" => user, "recipient" => recipient, "orderDetails" => orderDetails}
 
@@ -326,7 +333,7 @@ helpers do
 	
 	begin
   		puts "making order"
-		call_lcp(method,url,body)
+		response = call_lcp(method,url,body)
 	rescue => e
 		if e.response.code == 500
 			puts "LOG | ORDER create returned 500"			
@@ -337,7 +344,7 @@ helpers do
 			redirect '/error'
 		end
 	end
-
+	## TODO: add error cases for 400+ errors
   end
 
   # =====================
@@ -351,7 +358,20 @@ helpers do
 
 	body = { "order" => order["links"]["self"]["href"] }
 
-	call_lcp(method,url,body)
+	begin
+		response = call_lcp(method,url,body)
+	rescue => e
+		if e.code == 500
+			puts "LOG | CREDIT create returned 500"			
+		else 
+			# Log the response
+			puts "LOG | CREDIT create error | " + e.response
+			# Redirect to the error page
+			redirect '/error'
+		end
+	end
+	## TODO: add error cases for 400+ errors
+
   end
 
   # =====================
@@ -367,10 +387,9 @@ helpers do
 	body = {"amount" => points, "pic" => pic, "memberValidation" => memberValidation}
 
 	begin
-  		puts "making credit"
-		call_lcp(method,url,body)
+		response = call_lcp(method,url,body)
 	rescue => e
-		if e.response.code == 500
+		if e.code == 500
 			puts "LOG | CREDIT create returned 500"			
 		else 
 			# Log the response
@@ -379,7 +398,7 @@ helpers do
 			redirect '/error'
 		end
 	end
-
+	## TODO: add error cases for 400+ errors, failure status, etc
   end
 
   # =====================
