@@ -8,10 +8,12 @@
 
 <div class="get">
 	<form class="give" method="post" action="/account/give-points">
-     	<input class="textfield" type="text" name="firstName" placeholder=" Your recipient's first name" />
-     	<input class="textfield" type="text" name="lastName" placeholder=" Your recipient's last name" />
-     	<input class="textfield" type="text" name="email" placeholder=" Your recipient's email" />
-     	<input type="range" name="points" id="points" value="1000" min="0" max="<%= @mv["balance"] %>" data-highlight="true">
-		<input class="submit" type="submit" value="Give">
+		<p>I volunteered for <input type="text" name="hours" size="3" maxlength="2" /> hours.
+		<p>I did something else worth doing:</p>
+		<select>
+  			<option value="2000">I organized a group activity for more than 5 people!</option>
+  			<option value="2000">I organized a group activity for more than 5 people!</option>
+		</select><br /><br />
+		<input type="submit" value="Get My Points!" />
 	</form>
 </div>

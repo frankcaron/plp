@@ -89,6 +89,12 @@ before '/account/*' do
     validate_session(session[:session],session[:sessionToken])
 end
 
+
+get '/account/logout' do
+    kill_session()
+    erb :logout
+end
+
 get '/account/profile' do
     #Pass session details to view
     @member = session[:sessionMember]
@@ -109,22 +115,23 @@ get '/account/give' do
     erb :give
 end
 
-get '/account/give-points' do
-    #Pass session details to view
-    # admin_credit_member("Mladen","R","m@r.com",1234)
-end
-
-get '/account/logout' do
-    kill_session()
-    erb :logout
-end
 
 get '/account/activity' do
     erb :activity
 end
 
-get '/account/get-points' do
+get '/account/get' do
     erb :get_points
+end
+
+get '/account/give-points' do
+    #Pass session details to view
+    # admin_credit_member("Mladen","R","m@r.com",1234)
+end
+
+get '/account/get-points' do
+    # Pass session details to view
+    # admin_credit_member("Mladen","R","m@r.com",1234)
 end
 
 # Catch All
