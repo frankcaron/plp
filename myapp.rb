@@ -67,20 +67,26 @@ get '/logged-in' do
         puts "Session Member Name: " + session[:sessionMember]["name"]["givenName"]
 
 
-        #Do an MV
-        session[:sessionMV] = JSON.parse(create_mv(session[:sessionMember]["name"]["givenName"],
-                                         session[:sessionMember]["name"]["familyName"],
-                                         session[:sessionMember]["emails"][0]["value"].to_s,
-                                         2000).to_s)
+    user = {"firstName" => session[:sessionMember]["name"]["givenName"], "lastName" => session[:sessionMember]["name"]["familyName"], "email" => session[:sessionMember]["emails"][0]["value"].to_s}
+    
+    #Do an MV
+    session[:sessionMV] = JSON.parse(create_mv(user, 1))
 
-        # Logging
-        puts session[:sessionMV].to_s
+    # Logging
+    puts "SESSION MV"
+    puts session[:sessionMV].to_s
 
-        # Redirect to profile once account created successfully
-        redirect '/account/profile'
-    end
-    # Redirect back to log in page if something goes wrong
-    redirect '/login'
+    puts "SESSION Balance"
+    puts session[:sessionMV]["balance"]
+
+    puts "SESSION first name"
+    puts session[:sessionMV]["firstName"]
+
+    # Redirect to profile once account created successfully
+    redirect '/account/profile'
+  end
+  # Redirect back to log in page if something goes wrong
+  redirect '/login'
 end
 
 # Account Goodness
@@ -117,16 +123,32 @@ end
 
 
 get '/account/activity' do
+    #Pass session details to view
+    @member = session[:sessionMember]
+    @mv = session[:sessionMV]
+    @session = session[:session]
+
     erb :activity
 end
 
 get '/account/get' do
+
+    #Pass session details to view
+    @member = session[:sessionMember]
+    @mv = session[:sessionMV]
+    @session = session[:session]
+    
     erb :get_points
 end
 
 get '/account/give-points' do
     #Pass session details to view
-    # admin_credit_member("Mladen","R","m@r.com",1234)
+    pic = "PointsForGood"
+    recipient = { "firstName" => "Frank", "lastName" => "Caron", "email" => "frank.caron@points.com"}
+    message = "Yo"
+    points = 1000
+
+    admin_credit_member(recipient, points, pic, message)
 end
 
 get '/account/get-points' do
@@ -143,12 +165,6 @@ end
 get '/*' do
     erb :index
 end
-
-
-
-
-
-
 
 
 # ------------------------------------------------------------------------------------------
@@ -217,27 +233,38 @@ helpers do
   # Special instance here will automatically create an account in the PLP
   # ======================
 
-  def create_mv(firstName,lastName,email,points)
+  def create_mv(user, newUser)
+
+    puts "creating MV"
 
     # Set up basics
     url = "https://staging.lcp.points.com/v1/lps/53678d34-92c7-46c3-942b-d195ccf33637/mvs/"
     method = "POST"
-    body = { "memberId" => email }.to_json
+    body = { "memberId" => user["email"] }.to_json
+
+    puts body
 
     # Make Request
     begin
-        call_lcp(method,url,body)
+      response = call_lcp(method,url,body)
+      puts "*********" + response.code.to_s + "%%%%%%"
     rescue => e
-        # If the member doesn't exist, create an account.
-        if e.response.code == 422 
-            create_account(firstName,lastName,email,points)
-        else 
-            # Log the response
-            puts "LOG | MV create error | " + e.response
-            # Redirect to the error page
-            redirect '/error'
-        end
+      # If the member doesn't exist, create an account.
+      puts "error"
+      if e.code == 422
+        if newUser == 1
+          points = 2000
+          create_account(user["firstName"],user["lastName"],user["email"],points)
+        end       
+      else 
+        # Log the response
+        puts "LOG | MV create error | " + e.response
+        # Redirect to the error page
+        redirect '/error'
+      end
     end
+    #TODO: Add more error scenarios
+    return response
   end
 
   # =====================
@@ -272,30 +299,126 @@ helpers do
   # Creates a credit and order for a member
   # This special admin version is used for the activity awarding
   # ======================
-  def admin_credit_member(memberFirstName,memberLastName,memberEmail,points)
+  def admin_credit_member(recipient, points, pic, message)
     # If the member is an admin
     unless session[:sessionMV]["admin"].nil?
-        # Perform MV
-        # Create an order
-        # Patch MV
-        # If successful, create a credit
-            # If successful, let the user know
-            # If unsuccessful, let the user know why
-        # If unsuccessful, system error 
-        # redirect '/error'
+      #Create recipient MV
+      recipientMV = JSON.parse(create_mv(recipient, 0))
+      
+      #Create order
+      order = create_order(recipientMV, points, pic, message)
+      
+      #Patch MVs
+      patch_mv(session[:sessionMV],order)
+      patch_mv(recipientMV,order)
+      
+      #Create Credit
+      create_credit(recipientMV, points, pic)
+
+      # TODO: If successful, create a credit
+        # If successful, let the user know
+        # If unsuccessful, let the user know why
+    # If unsuccessful, system error 
+    # redirect '/error'
+    end
+
+  end
+
+  # =====================
+  # Create Order
+  #
+  # Creates a new order on the LCP
+  # ======================
+  def create_order(recipientMV, points, pic, message)
+  orderType = "PointsIncentive"
+  
+  #Order Data Section
+  loyaltyProgram = session[:sessionMV]["loyaltyProgram"]
+  user = {"firstName" => session[:sessionMember]["name"]["givenName"],    #TODO: cleanup to use this from the MV
+   "lastName" => session[:sessionMember]["name"]["familyName"], 
+   "email" => session[:sessionMV]["email"], 
+   "balance" => session[:sessionMV]["balance"]} 
+  recipient = {"firstName" => recipientMV["firstName"],
+   "lastName" => recipientMV["lastName"], 
+   "email" => recipientMV["email"], 
+   "balance" => recipientMV["balance"]}
+   basePIC = {"base" => pic}
+  orderDetails = {"basePoints" => points, "recipientMessage" => message, "pic" => basePIC}
+  
+  orderData = {"loyaltyProgram" => loyaltyProgram, "user" => user, "recipient" => recipient, "orderDetails" => orderDetails}
+
+    url = "https://staging.lcp.points.com/v1/orders/"
+  method = "POST"
+  body = {"orderType" => orderType, "data" => orderData}
+  
+  begin
+      puts "making order"
+    response = call_lcp(method,url,body)
+  rescue => e
+    if e.response.code == 500
+      puts "LOG | ORDER create returned 500"      
+    else 
+      # Log the response
+      puts "LOG | ORDER create error | " + e.response
+      # Redirect to the error page
+      redirect '/error'
     end
   end
-
-  def create_order
+  ## TODO: add error cases for 400+ errors
   end
 
-  def create_recipient_mv
+  # =====================
+  # Patch MV
+  #
+  # Patches and MV with an order resource
+  # ======================
+  def patch_mv(mv,order)
+    url = mv["links"]["self"]["href"]
+  method = "PATCH"
+
+  body = { "order" => order["links"]["self"]["href"] }
+
+  begin
+    response = call_lcp(method,url,body)
+  rescue => e
+    if e.code == 500
+      puts "LOG | CREDIT create returned 500"     
+    else 
+      # Log the response
+      puts "LOG | CREDIT create error | " + e.response
+      # Redirect to the error page
+      redirect '/error'
+    end
+  end
+  ## TODO: add error cases for 400+ errors
+
   end
 
-  def patch_mv(order,mv)
-  end
+  # =====================
+  # Create Credit
+  #
+  # Creates a new credit on the LCP
+  # ======================
+  def create_credit(recipientMV,points,pic)
+    memberValidation = recipientMV["links"]["self"]["href"]
 
-  def create_credit
+    url = "https://staging.lcp.points.com/v1/lps/53678d34-92c7-46c3-942b-d195ccf33637/credits/"
+  method = "POST"
+  body = {"amount" => points, "pic" => pic, "memberValidation" => memberValidation}
+
+  begin
+    response = call_lcp(method,url,body)
+  rescue => e
+    if e.code == 500
+      puts "LOG | CREDIT create returned 500"     
+    else 
+      # Log the response
+      puts "LOG | CREDIT create error | " + e.response
+      # Redirect to the error page
+      redirect '/error'
+    end
+  end
+  ## TODO: add error cases for 400+ errors, failure status, etc
   end
 
   # =====================
@@ -304,34 +427,35 @@ helpers do
   # Generic LCP call wrapper
   # ======================
 
-    def call_lcp(method,url,body)
-        mac_key_identifier = ENV["PLP_MAC_ID"]
-        mac_key = ENV["PLP_MAC_KEY"]
-        content_type = "application/json"
-        method = method.upcase
+  def call_lcp(method,url,body)
+    mac_key_identifier = ENV["PLP_MAC_ID"]
+    mac_key = ENV["PLP_MAC_KEY"]
+    content_type = "application/json"
+    method = method.upcase
 
-        # Generate Headers
-        headers = generate_authorization_header_value(method,url,mac_key_identifier,mac_key,content_type,body)
+    # Generate Headers
+    headers = generate_authorization_header_value(method,url,mac_key_identifier,mac_key,content_type,body)
 
-        # Make Request
-        if method == "POST"
-            return RestClient.post(url, 
-                                   body, 
-                                   :content_type => :json, 
-                                   :accept => :json,
-                                   :"Authorization" => headers)
-        else 
-            return RestClient.get(url, 
-                                  body, 
-                                  :content_type => :json, 
-                                  :accept => :json,
-                                  :"Authorization" => headers)
-        end
-    end 
+      # Make Request
+      if method == "POST"
+        return RestClient.post(url, 
+                   body, 
+                   :content_type => :json, 
+                   :accept => :json,
+                   :"Authorization" => headers)
+    elsif method == "PATCH"    
+      return RestClient.patch(url, 
+                  body, 
+                  :content_type => :json, 
+                  :accept => :json,
+                  :"Authorization" => headers)
+    else
+      return RestClient.get(url, 
+                  body, 
+                  :content_type => :json, 
+                  :accept => :json,
+                  :"Authorization" => headers)
+    end
+  end 
 #
 end
-
-
-
-
-
