@@ -185,6 +185,38 @@ end
 post '/account/get-points' do
     # Pass session details to view
     # credit_member(self)
+    #Grab params
+    hours = params[:hours]
+    points = params[:points]
+    message = params[:message]
+
+    # Add total points for the count of activities
+    points = hours*1000 + points
+
+    #Params
+    puts "LOG | Form Post | First Name " + firstName
+    puts "LOG | Form Post | Last Name " + lastName
+    puts "LOG | Form Post | Email " + email
+
+    # Structure data
+    pic = settings.base_give_pic
+    recipient = { "firstName" => session[:sessionMV]["firstName"], "lastName" => session[:sessionMV]["lastName"], "email" => session[:sessionMV]["email"] }
+
+    # Do the Gift
+    begin
+        puts "LOG | Self gifting to a member " + recipient.to_s
+        credit_member(recipient, points, pic, message)
+
+        puts "LOG | Successfully self gifted " + points
+
+        # Redirect to the account page
+        redirect '/account/profile'
+    rescue => e
+        # Log the response
+        puts "LOG | Failed to credit member | " + e.to_s
+        # Redirect to the error page
+        redirect '/error'
+    end    
 end
 
 # Catch All
