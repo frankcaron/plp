@@ -388,9 +388,18 @@ helpers do
 
   def create_account(firstName,lastName,email,points)
     # Create an account with Mihnea's LP
+    
+    # Set request
     url = settings.plp_registration_url
     content_type = "application/json"
-    body = { "memberId" => email, "firstName" => firstName, "lastName" => lastName, "points" => points,  }.to_json
+    
+    # Set up picture
+    picture = session[:sessionMember]["image"]["url"]
+    if picture.nil?
+      picture = "http://3.bp.blogspot.com/-G5aIFyMZ7f0/T70hqGlbb5I/AAAAAAAAK_Q/FYMbyJz2SXU/s1600/Question_mark.PNG"
+    end
+
+    body = { "memberId" => email, "firstName" => firstName, "lastName" => lastName, "points" => points, "picture" => picture  }.to_json
     
     # Make Request
     begin
@@ -445,11 +454,11 @@ helpers do
     
     #Order Data Section
     loyaltyProgram = session[:sessionMV]["loyaltyProgram"]
-    user = {"firstName" => session[:sessionMember]["name"]["givenName"],    #TODO: cleanup to use this from the MV
-            "lastName" => session[:sessionMember]["name"]["familyName"], 
+    user = {"firstName" => session[:sessionMV]["firstName"],    #TODO: cleanup to use this from the MV
+            "lastName" => session[:sessionMV]["lastName"], 
             #"email" => session[:sessionMV]["email"], 
             "balance" => session[:sessionMV]["balance"],
-            "picture" => session[:sessionMember]["image"]["url"]} 
+            "picture" => session[:sessionMV]["picture"]} 
     recipient = {"firstName" => recipientMV["firstName"],
                  "lastName" => recipientMV["lastName"], 
                  #"email" => recipientMV["email"], 
