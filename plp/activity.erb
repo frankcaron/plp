@@ -2,28 +2,29 @@
 <div class="spacer">&nbsp;</div>
 
 <div class="activityWidgets">
-
-	<div class="activityWidget">
-		<div class="profileActivityImage">
-			<div class="profileAvatarActivity">
-				<img class="profileAvatar-image" src="https://lh5.googleusercontent.com/-YdNH4YWtA18/AAAAAAAAAAI/AAAAAAAAABE/xxhuUqNm1pw/photo.jpg?sz=500" width="250" />
+	
+<% @orders["orders"].each do |order| %>	
+	<% unless order["status"]=="unknown" %>
+		<div class="activityWidget">
+			<div class="profileActivityImage">
+				<div class="profileAvatarActivity">
+					<% if order["data"]["user"]["picture"].nil? %>
+						<img class="profileAvatar-image" src="http://3.bp.blogspot.com/-G5aIFyMZ7f0/T70hqGlbb5I/AAAAAAAAK_Q/FYMbyJz2SXU/s1600/Question_mark.PNG" width="250" />
+					<% else %>
+						<img class="profileAvatar-image" src=<%= order["data"]["user"]["picture"] + "0"%> width="250" />
+					<% end %>
+				</div>
 			</div>
+				<div class="activityDescription">
+					<p><strong><%= order["data"]["user"]["firstName"] %> <%= order["data"]["user"]["lastName"] %></strong> earned <%= order["data"]["orderDetails"]["basePoints"] %> points for "<%= order["data"]["orderDetails"]["recipientMessage"] %>". Way to go!</p>
+				</div>
 		</div>
-		<div class="activityDescription">
-			<p><strong>Frank Caron</strong> earned 200 points for going above and beyond.</p>
-		</div>
-	</div>
+	<% end %>
+<% end %>
 
-	<div class="activityWidget">
-		<div class="profileActivityImage">
-			<div class="profileAvatarActivity">
-				<img class="profileAvatar-image" src="https://lh5.googleusercontent.com/-YdNH4YWtA18/AAAAAAAAAAI/AAAAAAAAABE/xxhuUqNm1pw/photo.jpg?sz=500" width="250" />
-			</div>
-		</div>
-		<div class="activityDescription">
-			<p><strong>Frank Caron</strong> earned 200 points for going above and beyond.</p>
-		</div>
-	</div>
+	<div>
+		<a href="/account/activity?limit=10&offset=<%=@prev%>">Newer</a> &nbsp;&nbsp;
+		<a href="/account/activity?limit=10&offset=<%=@next%>">Older</a>
 
+	</div>
 </div>
-<div></div>

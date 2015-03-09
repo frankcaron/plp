@@ -109,6 +109,11 @@ get '/account/logout' do
 end
 
 get '/account/profile' do
+    
+    #Do a fresh MV
+    user = {"firstName" => session[:sessionMember]["name"]["givenName"], "lastName" => session[:sessionMember]["name"]["familyName"], "email" => session[:sessionMember]["emails"][0]["value"].to_s}
+    session[:sessionMV] = JSON.parse(create_mv(user, 0))
+
     #Pass session details to view
     @member = session[:sessionMember]
     @mv = session[:sessionMV]
@@ -135,7 +140,46 @@ get '/account/activity' do
     @mv = session[:sessionMV]
     @session = session[:session]
 
-    erb :activity
+    #Grab params
+    limit = params[:limit]
+    offset = params[:offset]
+
+    #Tweak params
+    if offset.nil? || offset.to_i < 0
+      offset = "0"
+    end
+    if limit.nil? || limit.to_i > 10
+      limit = "5" 
+    end
+
+    @next = offset.to_i + limit.to_i
+    @prev = offset.to_i - limit.to_i
+
+    # Grab the activity
+    begin
+        # Log
+        puts "LOG | Getting order activity "
+        puts "LOG | (Limit, Offset) " + limit + "," + offset
+
+        # Get the orders
+        url = settings.base_url + "/search/orders/?limit=" + limit + "&offset=" + offset +  "&q=orderType:PointsIncentive"
+        orders = call_lcp("GET",url,"")
+        orders = JSON.parse(orders)
+
+        # Log
+        puts "LOG | Order activity | " + orders.to_s
+
+        # Pass the session
+        @orders = orders
+
+        #Load the view
+        erb :activity
+    rescue => e
+        # Log the response
+        puts "LOG | Failed to get orders | " + e.to_s
+        # Redirect to the error page
+        redirect '/error'
+    end       
 end
 
 get '/account/get' do
@@ -157,9 +201,9 @@ post '/account/give-points' do
     message = params[:message]
 
     #Params
-    puts "LOG | Form Post | First Name " + firstName
-    puts "LOG | Form Post | Last Name " + lastName
-    puts "LOG | Form Post | Email " + email
+    puts "LOG | Form Post | First Name " + firstName.to_s
+    puts "LOG | Form Post | Last Name " + lastName.to_s
+    puts "LOG | Form Post | Email " + email.to_s
 
     # Structure data
     pic = settings.base_give_pic
@@ -190,9 +234,8 @@ post '/account/get-points' do
     message = params[:message]
 
     #Params
-    puts "LOG | Form Post | First Name " + firstName
-    puts "LOG | Form Post | Last Name " + lastName
-    puts "LOG | Form Post | Email " + email
+    puts "LOG | Form Post | Points " + points
+    puts "LOG | Form Post | Message " + message
 
     # Structure data
     pic = settings.base_give_pic
@@ -201,7 +244,7 @@ post '/account/get-points' do
     # Do the Gift
     begin
         puts "LOG | Self gifting to a member " + recipient.to_s
-        credit_member(recipient, points, pic, message)
+        credit_member(recipient, points.to_i, pic, message)
 
         puts "LOG | Successfully self gifted " + points
 
@@ -305,11 +348,10 @@ helpers do
 
     # Make Request
     begin
-      response = call_lcp(method,url,body)
-      puts "*********" + response.code.to_s + "%%%%%%"
+      mvresponse = call_lcp(method,url,body)
     rescue => e
       # If the member doesn't exist, create an account.
-      puts "LOG | Error creating MV | Trying to create account"
+      puts "LOG | Error creating MV | Trying to create account | " + e
       if e.code == 422
         if newUser == 1
           points = 2000
@@ -322,6 +364,18 @@ helpers do
         redirect '/error'
       end
     end
+
+    # Fetch the member details
+    mvs = JSON.parse(mvresponse)
+    detailsURL = mvs["links"]["self"]["href"]+"/member-details"
+    puts "LOG | Grabbing member details | " + detailsURL
+
+    begin
+      response = call_lcp("GET",detailsURL,"")
+    rescue => e
+      puts "LOG | MV Details create error | " + e
+    end
+
     #TODO: Add more error scenarios
     return response
   end
@@ -362,20 +416,23 @@ helpers do
     # If the member is an admin
     #unless session[:sessionMV]["admin"].nil?
       #Create recipient MV
+      puts "creatingMV"
+      userMV = session[:sessionMV]
       recipientMV = JSON.parse(create_mv(recipient, 0))
-
-      puts "LOG | Recipient MV Json | " + recipientMV.to_s
+      puts "recpievntMV"
+      puts recipientMV
       
+      puts "creatingOrder"
       #Create order
-      order = create_order(recipientMV, points, pic, message)
-      
+      order = JSON.parse(create_order(recipientMV, points, pic, message))
       #Patch MVs
-      patch_mv(session[:sessionMV],order)
+
+      patch_mv(userMV,order)
       patch_mv(recipientMV,order)
       
       #Create Credit
       create_credit(recipientMV, points, pic)
-    #end
+      #end
   end
 
   # =====================
@@ -390,18 +447,19 @@ helpers do
     loyaltyProgram = session[:sessionMV]["loyaltyProgram"]
     user = {"firstName" => session[:sessionMember]["name"]["givenName"],    #TODO: cleanup to use this from the MV
             "lastName" => session[:sessionMember]["name"]["familyName"], 
-            "email" => session[:sessionMV]["email"], 
-            "balance" => session[:sessionMV]["balance"]} 
+            #"email" => session[:sessionMV]["email"], 
+            "balance" => session[:sessionMV]["balance"],
+            "picture" => session[:sessionMember]["image"]["url"]} 
     recipient = {"firstName" => recipientMV["firstName"],
                  "lastName" => recipientMV["lastName"], 
-                 "email" => recipientMV["email"], 
+                 #"email" => recipientMV["email"], 
                  "balance" => recipientMV["balance"]}
     basePIC = {"base" => pic}
     orderDetails = {"basePoints" => points, "recipientMessage" => message, "pic" => basePIC}
     orderData = {"loyaltyProgram" => loyaltyProgram, "user" => user, "recipient" => recipient, "orderDetails" => orderDetails}
     url = settings.base_url + "/orders/"
     method = "POST"
-    body = {"orderType" => orderType, "data" => orderData}
+    body = {"orderType" => orderType, "data" => orderData}.to_json
     
     begin
         puts "LOG | ORDER creating" 
@@ -420,6 +478,9 @@ helpers do
     # Log the response
     puts "LOG | ORDER created |"
 
+    # Return the response
+    return response
+
     ## TODO: add error cases for 400+ errors
   end
 
@@ -429,10 +490,10 @@ helpers do
   # Patches and MV with an order resource
   # ======================
   def patch_mv(mv,order)
-    url = mv["links"]["self"]["href"]
+    url = mv["links"]["memberValidation"]["href"]
     method = "PATCH"
 
-    body = { "order" => order["links"]["self"]["href"] }
+    body = { "order" => order["links"]["self"]["href"] }.to_json
 
     begin
       response = call_lcp(method,url,body)
@@ -456,11 +517,11 @@ helpers do
   # Creates a new credit on the LCP
   # ======================
   def create_credit(recipientMV,points,pic)
-    memberValidation = recipientMV["links"]["self"]["href"]
+    memberValidation = recipientMV["links"]["memberValidation"]["href"]
 
     url = settings.base_url + "/lps/53678d34-92c7-46c3-942b-d195ccf33637/credits/"
     method = "POST"
-    body = {"amount" => points, "pic" => pic, "memberValidation" => memberValidation}
+    body = {"amount" => points, "pic" => pic, "memberValidation" => memberValidation}.to_json
 
     begin
       response = call_lcp(method,url,body)
@@ -494,33 +555,41 @@ helpers do
     # Prep vars
     mac_key_identifier = ENV["PLP_MAC_ID"]
     mac_key = ENV["PLP_MAC_KEY"]
-    content_type = "application/json"
     method = method.upcase
+
+    # Ignore content type if the GET 
+    if method != "GET"
+      content_type = "application/json"
+    else
+      content_type = ""
+    end
 
     # Generate Headers
     headers = generate_authorization_header_value(method,url,mac_key_identifier,mac_key,content_type,body)
 
     # Logging   
     puts "LOG | Calling to LCP | headers: " + headers
- 
-
 
     # Make Request
     if method == "POST"
-        return RestClient.post(url, 
+      return RestClient.post(url, 
                    body, 
                    :content_type => :json, 
                    :accept => :json,
                    :"Authorization" => headers)
     elsif method == "PATCH"    
-        return RestClient.patch(url, 
+      return RestClient.patch(url, 
                   body, 
                   :content_type => :json, 
                   :accept => :json,
                   :"Authorization" => headers)
+    elsif method == "GET"    
+      return RestClient.get(url, 
+                  :accept => :json,
+                  :"Authorization" => headers)
     else
-        return RestClient.get(url, 
-                  body, 
+      return RestClient.get(url, 
+                  body,
                   :content_type => :json, 
                   :accept => :json,
                   :"Authorization" => headers)
