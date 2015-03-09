@@ -8,13 +8,14 @@
 
 <div class="get">
 	<form class="give" method="post" action="/account/give-points">
-		<p>I volunteered for <input type="text" name="hours" size="3" maxlength="2" /> hours.
-		<p><strong>OR</strong></p>	
-		<p>I did something else worth doing:</p>
 		<select name="points">
+  			<option value="0">I did the following awesome thing...</option>
+  			<option value="1000">I volunteered for one hour.</option>
+  			<option value="4000">I volunteered for 4 hours.</option>
+  			<option value="8000">I volunteered for a full day.</option>					
   			<option value="2500">I participated in a "Points For Good" activity!</option>
   			<option value="10000">I organized a volunteer activity for 5 or more Poinsters!</option>
-		</select><br /><br />
+		</select>
 		<input class="textfield" type="text" name="message" placeholder="Tell us more about what you did." required />
 		<input type="submit" value="Get My Points!" />
 	</form>

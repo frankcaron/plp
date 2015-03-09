@@ -186,12 +186,8 @@ post '/account/get-points' do
     # Pass session details to view
     # credit_member(self)
     #Grab params
-    hours = params[:hours]
     points = params[:points]
     message = params[:message]
-
-    # Add total points for the count of activities
-    points = hours*1000 + points
 
     #Params
     puts "LOG | Form Post | First Name " + firstName
