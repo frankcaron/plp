@@ -6908,9 +6908,6 @@ input.textfield {
 }
 
 select.textfield {
-  max-width: 325px;
-  min-width: 50px;
-  width: 270px;
   padding-right: 5px;
   padding-top: 10px;
   padding-bottom: 10px;
