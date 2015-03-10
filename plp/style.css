@@ -6903,8 +6903,6 @@ label.formlabel {
 }
 
 input.textfield {
-  max-width: 325px;
-  min-width: 50px;
 }
 
 select.textfield {

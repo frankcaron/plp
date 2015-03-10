@@ -73,25 +73,23 @@ get '/logged-in' do
         puts "LOG | Session Member: " + session[:sessionMember].to_s
         puts "LOG | Session Member Name: " + session[:sessionMember]["name"]["givenName"]
 
-
-    user = {"firstName" => session[:sessionMember]["name"]["givenName"], "lastName" => session[:sessionMember]["name"]["familyName"], "email" => session[:sessionMember]["emails"][0]["value"].to_s}
+        # Construct user object
+        user = {"firstName" => session[:sessionMember]["name"]["givenName"], "lastName" => session[:sessionMember]["name"]["familyName"], "email" => session[:sessionMember]["emails"][0]["value"].to_s}
     
-    #Do an MV
-    session[:sessionMV] = JSON.parse(create_mv(user, 1))
+        #Do an MV
+        session[:sessionMV] = JSON.parse(create_mv(user, 1))
 
-    # Logging
-    puts "LOG | SESSION MV"
-    puts session[:sessionMV].to_s
+        # Logging
+        puts "LOG | SESSION MV"
+        puts session[:sessionMV].to_s
+        puts "LOG | SESSION Balance"
+        puts session[:sessionMV]["balance"]
+        puts "LOG | SESSION first name"
+        puts session[:sessionMV]["firstName"]
 
-    puts "LOG | SESSION Balance"
-    puts session[:sessionMV]["balance"]
-
-    puts "LOG | SESSION first name"
-    puts session[:sessionMV]["firstName"]
-
-    # Redirect to profile once account created successfully
-    redirect '/account/profile'
-  end
+        # Redirect to profile once account created successfully
+        redirect '/account/profile'
+    end
   # Redirect back to log in page if something goes wrong
   redirect '/login'
 end
@@ -115,7 +113,6 @@ get '/account/profile' do
     session[:sessionMV] = JSON.parse(create_mv(user, 0))
 
     #Pass session details to view
-    @member = session[:sessionMember]
     @mv = session[:sessionMV]
     @session = session[:session]
 
@@ -125,7 +122,6 @@ end
 
 get '/account/give' do
     #Pass session details to view
-    @member = session[:sessionMember]
     @mv = session[:sessionMV]
     @session = session[:session]
 
@@ -136,7 +132,6 @@ end
 
 get '/account/activity' do
     #Pass session details to view
-    @member = session[:sessionMember]
     @mv = session[:sessionMV]
     @session = session[:session]
 
@@ -185,7 +180,6 @@ end
 get '/account/get' do
 
     #Pass session details to view
-    @member = session[:sessionMember]
     @mv = session[:sessionMV]
     @session = session[:session]
     
