@@ -346,7 +346,7 @@ helpers do
     rescue => e
       # If the member doesn't exist, create an account.
       puts "LOG | Error creating MV | Trying to create account | " + e.to_s
-      if e.response.response.code == 422
+      if e.response.code == 422
         if newUser == 1
           points = 2000
           create_account(user["firstName"],user["lastName"],user["email"],points)
@@ -468,7 +468,7 @@ helpers do
         puts "LOG | ORDER creating" 
         response = call_lcp(method,url,body)
     rescue => e
-      if e.response.response.code == 500
+      if e.response.code == 500
         puts "LOG | ORDER create returned 500"      
       else 
         # Log the response
