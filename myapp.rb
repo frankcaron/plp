@@ -345,7 +345,7 @@ helpers do
       mvresponse = call_lcp(method,url,body)
     rescue => e
       # If the member doesn't exist, create an account.
-      puts "LOG | Error creating MV | Trying to create account | " + e
+      puts "LOG | Error creating MV | Trying to create account | " + e.to_s
       if e.code == 422
         if newUser == 1
           points = 2000
@@ -367,7 +367,7 @@ helpers do
     begin
       response = call_lcp("GET",detailsURL,"")
     rescue => e
-      puts "LOG | MV Details create error | " + e
+      puts "LOG | MV Details create error | " + e.to_s
     end
 
     #TODO: Add more error scenarios
