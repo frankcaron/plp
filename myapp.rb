@@ -371,6 +371,9 @@ helpers do
         if newUser == 1
           points = 2000
           create_account(user["firstName"],user["lastName"],user["email"],points)
+
+          puts "LOG | Account successfully created"
+          return create_mv(user,0)
         end       
       else 
         # Log the response
@@ -407,6 +410,7 @@ helpers do
         response = RestClient.post(
             url, body, 
             :content_type => :json, :accept => :json)
+
             puts "LOG | Account create response | " + response.to_str
     rescue => e
         # Log the response
