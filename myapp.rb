@@ -343,6 +343,26 @@ helpers do
     # Make Request
     begin
       mvresponse = call_lcp(method,url,body)
+      
+      # Log the MV fetch
+      puts "LOG | MV created successfully | " + mvresponse.to_s
+
+      # Fetch the member details
+      mvs = JSON.parse(mvresponse)
+      detailsURL = mvs["links"]["self"]["href"]+"/member-details"
+      puts "LOG | Grabbing member details | " + detailsURL
+
+      begin
+        response = call_lcp("GET",detailsURL,"")
+      rescue => e
+        puts "LOG | MV Details create error | " + e.to_s
+        # Redirect to the error page
+        redirect '/error'
+      end
+
+      #TODO: Add more error scenarios
+      return response
+
     rescue => e
       # If the member doesn't exist, create an account.
       puts "LOG | Error creating MV | Trying to create account | " + e.to_s
@@ -358,23 +378,6 @@ helpers do
         redirect '/error'
       end
     end
-
-    # Log the MV fetch
-    puts "LOG | MV created successfully | " + mvresponse.to_s
-
-    # Fetch the member details
-    mvs = JSON.parse(mvresponse)
-    detailsURL = mvs["links"]["self"]["href"]+"/member-details"
-    puts "LOG | Grabbing member details | " + detailsURL
-
-    begin
-      response = call_lcp("GET",detailsURL,"")
-    rescue => e
-      puts "LOG | MV Details create error | " + e.to_s
-    end
-
-    #TODO: Add more error scenarios
-    return response
   end
 
   # =====================
