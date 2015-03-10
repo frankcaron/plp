@@ -353,16 +353,17 @@ helpers do
       puts "LOG | Grabbing member details | " + detailsURL
 
       begin
+        # Return Response
         response = call_lcp("GET",detailsURL,"")
+        puts "LOG | MV Details fetched successfully | " + response.to_s
+        return response
+
       rescue => e
         puts "LOG | MV Details create error | " + e.to_s
         # Redirect to the error page
         redirect '/error'
       end
-
-      #TODO: Add more error scenarios
-      return response
-
+      
     rescue => e
       # If the member doesn't exist, create an account.
       puts "LOG | Error creating MV | Trying to create account | " + e.to_s
