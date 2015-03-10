@@ -359,6 +359,9 @@ helpers do
       end
     end
 
+    # Log the MV fetch
+    puts "LOG | MV created successfully | " + mvresponse.to_s
+
     # Fetch the member details
     mvs = JSON.parse(mvresponse)
     detailsURL = mvs["links"]["self"]["href"]+"/member-details"
