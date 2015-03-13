@@ -72,6 +72,13 @@ get '/logged-in' do
         # Logging 
         puts "LOG | Session Member: " + session[:sessionMember].to_s
         puts "LOG | Session Member Name: " + session[:sessionMember]["name"]["givenName"]
+        puts "LOG | Session Member Domain: " + session[:sessionMember]["domain"]
+
+        unless session[:sessionMember]["domain"].to_s.eql? "points.com"
+          # Redirect to the error page if the person isn't from Points
+          puts "LOG | Session Member isn't a Points.com member"
+          redirect '/error'
+        end
 
         # Construct user object
         user = {"firstName" => session[:sessionMember]["name"]["givenName"], "lastName" => session[:sessionMember]["name"]["familyName"], "email" => session[:sessionMember]["emails"][0]["value"].to_s}
@@ -89,6 +96,7 @@ get '/logged-in' do
 
         # Redirect to profile once account created successfully
         redirect '/account/profile'
+        
     end
   # Redirect back to log in page if something goes wrong
   redirect '/login'
