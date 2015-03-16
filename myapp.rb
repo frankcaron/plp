@@ -32,6 +32,7 @@ configure do
     set :base_give_pic, "PointsForGood"
     set :base_url, "https://staging.lcp.points.com/v1"
     set :plp_registration_url, "https://plp-api.herokuapp.com/register"
+    set :lp_id, "53678d34-92c7-46c3-942b-d195ccf33637"
 
     # Enable :sessions
     use Rack::Session::Pool
@@ -342,7 +343,7 @@ helpers do
     puts "LOG | Creating MV"
 
     # Set up basics
-    url = settings.base_url + "/lps/53678d34-92c7-46c3-942b-d195ccf33637/mvs/"
+    url = settings.base_url + "/lps/"+lp_id+"/mvs/"
     method = "POST"
     body = { "memberId" => user["email"] }.to_json
 
@@ -477,8 +478,11 @@ helpers do
                  #"email" => recipientMV["email"], 
                  "balance" => recipientMV["balance"]}
     basePIC = {"base" => pic}
+    
     orderDetails = {"basePoints" => points, "recipientMessage" => message, "pic" => basePIC}
     orderData = {"loyaltyProgram" => loyaltyProgram, "user" => user, "recipient" => recipient, "orderDetails" => orderDetails}
+    
+    #Construct order request
     url = settings.base_url + "/orders/"
     method = "POST"
     body = {"orderType" => orderType, "data" => orderData}.to_json
@@ -509,7 +513,7 @@ helpers do
   # =====================
   # Patch MV
   #
-  # Patches and MV with an order resource
+  # Patches an MV with an order resource
   # ======================
   def patch_mv(mv,order)
     url = mv["links"]["memberValidation"]["href"]
@@ -541,7 +545,34 @@ helpers do
   def create_credit(recipientMV,points,pic)
     memberValidation = recipientMV["links"]["memberValidation"]["href"]
 
-    url = settings.base_url + "/lps/53678d34-92c7-46c3-942b-d195ccf33637/credits/"
+    url = settings.base_url + "/lps/"+lp_id+"/credits/"
+    method = "POST"
+    body = {"amount" => points, "pic" => pic, "memberValidation" => memberValidation}.to_json
+
+    begin
+      response = call_lcp(method,url,body)
+    rescue => e
+      if e.response.code == 500
+        puts "LOG | CREDIT create returned 500"     
+      else 
+        # Log the response
+        puts "LOG | CREDIT create error | " + e.to_s
+        # Redirect to the error page
+        redirect '/error'
+      end
+    end
+  ## TODO: add error cases for 400+ errors, failure status, etc
+  end
+
+  # =====================
+  # Create Debit
+  #
+  # Creates a new debit resource on the LCP
+  # ======================
+  def create_debit(userMV,points,pic)
+    memberValidation = userMV["links"]["memberValidation"]["href"]
+
+    url = settings.base_url + "/lps/"+lp_id+"/debits/"
     method = "POST"
     body = {"amount" => points, "pic" => pic, "memberValidation" => memberValidation}.to_json
 
