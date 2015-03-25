@@ -343,7 +343,7 @@ helpers do
     puts "LOG | Creating MV"
 
     # Set up basics
-    url = settings.base_url + "/lps/"+lp_id+"/mvs/"
+    url = settings.base_url + "/lps/"+settings.lp_id+"/mvs/"
     method = "POST"
     body = { "memberId" => user["email"] }.to_json
 
@@ -545,7 +545,7 @@ helpers do
   def create_credit(recipientMV,points,pic)
     memberValidation = recipientMV["links"]["memberValidation"]["href"]
 
-    url = settings.base_url + "/lps/"+lp_id+"/credits/"
+    url = settings.base_url + "/lps/"+settings.lp_id+"/credits/"
     method = "POST"
     body = {"amount" => points, "pic" => pic, "memberValidation" => memberValidation}.to_json
 
@@ -572,7 +572,7 @@ helpers do
   def create_debit(userMV,points,pic)
     memberValidation = userMV["links"]["memberValidation"]["href"]
 
-    url = settings.base_url + "/lps/"+lp_id+"/debits/"
+    url = settings.base_url + "/lps/"+settings.lp_id+"/debits/"
     method = "POST"
     body = {"amount" => points, "pic" => pic, "memberValidation" => memberValidation}.to_json
 
