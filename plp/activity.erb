@@ -11,7 +11,7 @@
 					<% if order["data"]["user"]["picture"].nil? %>
 						<img class="profileAvatar-image" src="http://3.bp.blogspot.com/-G5aIFyMZ7f0/T70hqGlbb5I/AAAAAAAAK_Q/FYMbyJz2SXU/s1600/Question_mark.PNG" width="250" />
 					<% else %>
-						<img class="profileAvatar-image" src=<%= order["data"]["user"]["picture"]%> width="250" />
+						<img class="profileAvatar-image" src=<%= order["data"]["user"]["picture"] + "0"%> width="250" />
 					<% end %>
 				</div>
 			</div>
