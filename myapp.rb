@@ -30,9 +30,16 @@ configure do
 
     # PICs
     set :base_give_pic, "PointsForGood"
-    set :base_url, "https://lcp.points.com/v1"
     set :plp_registration_url, "https://plp-api.herokuapp.com/register"
-    set :lp_id, "4b05765f-dfd2-4585-97a2-ee3237eb4109"
+
+    #Staging
+
+    set :base_url, "https://staging.lcp.points.com/v1"
+    set :lp_id, "53678d34-92c7-46c3-942b-d195ccf33637"
+
+    # Prod
+    # set :base_url, "https://lcp.points.com/v1"
+    # set :lp_id, "4b05765f-dfd2-4585-97a2-ee3237eb4109"
 
     # Enable :sessions
     use Rack::Session::Pool
