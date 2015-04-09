@@ -173,7 +173,7 @@ get '/account/activity' do
         puts "LOG | (Limit, Offset) " + limit + "," + offset
 
         # Get the orders
-        url = settings.base_url + "/search/orders/?limit=" + limit + "&offset=" + offset +  "&q=orderType:PointsIncentive&sort=createdAt:desc"
+        url = settings.base_url + "/search/orders/?limit=" + limit + "&offset=" + offset +  "&q=orderType:PointsIncentive&sort=createdAt:desc&createdAt:[2015-04-09 TO *]"
         orders = call_lcp("GET",url,"")
         orders = JSON.parse(orders)
 
