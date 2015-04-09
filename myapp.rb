@@ -80,11 +80,17 @@ get '/logged-in' do
         # Logging 
         puts "LOG | Session Member: " + session[:sessionMember].to_s
         puts "LOG | Session Member Name: " + session[:sessionMember]["name"]["givenName"]
-        puts "LOG | Session Member Domain: " + session[:sessionMember]["domain"]
 
-        unless session[:sessionMember]["domain"].to_s.eql? "points.com"
+        if !session[:sessionMember]["domain"].nil?
+          puts "LOG | Session Member Domain: " + session[:sessionMember]["domain"]
+          unless session[:sessionMember]["domain"].to_s.eql? "points.com"
+            # Redirect to the error page if the person isn't from Points
+            puts "LOG | Session Member isn't a Points.com member"
+            redirect '/error'
+          end
+        else 
           # Redirect to the error page if the person isn't from Points
-          puts "LOG | Session Member isn't a Points.com member"
+          puts "LOG | Session Member is a generic Gmail member"
           redirect '/error'
         end
 
