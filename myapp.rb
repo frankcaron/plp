@@ -391,7 +391,7 @@ helpers do
       puts "LOG | Error creating MV | Trying to create account | " + e.to_s
       if e.response.code == 422
         if newUser == 1
-          points = 2000
+          points = 0
           create_account(user["firstName"],user["lastName"],user["email"],points)
 
           puts "LOG | Account successfully created"
