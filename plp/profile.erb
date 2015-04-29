@@ -26,9 +26,17 @@
 		<p><strong>Given</strong></p>
 		<p><%= @mv["pointsGiven"] %></p>
 	</div>
-	<div class="profileWidget">
+	<!--div class="profileWidget">
 		<p><strong>Ranking</strong></p>
 		<p>TBD</p>
+	</div-->
+	<div class="profileWidget">
+		<p><strong>Fitbit</strong></p>
+		<% if @mv["fitbitRegistered"] == true  %>
+		<p>Registered</p>
+		<% elsif @mv["fitbitRegistered"] == false %>
+		<p><a href="https://plp-api.herokuapp.com/registerfitbit?<%= @mv["email"] %>">Register</a></p>
+		<% end %>
 	</div>
 </div>
 <div></div>
