@@ -6,6 +6,7 @@
 		<p><em><%= @mv["email"] %></em></p>
 		<p>
 			<span class="profileAttribute">Full Name:</span><%= @mv["firstName"] %> <%= @mv["lastName"] %><br />
+			<span class="profileAttribute">Fitbit:</span><% if @mv["fitbitRegistered"] == true  %>You are burning to earn!<% elsif @mv["fitbitRegistered"] == false %><a href="https://plp-api.herokuapp.com/registerfitbit?<%= @mv["email"] %>">Start burning to earn today!</a><% end %><br />
 			<span class="profileAttribute">Member Since:</span> Time immemorial<br />
 		</p>
 
@@ -26,17 +27,17 @@
 		<p><strong>Given</strong></p>
 		<p><%= @mv["pointsGiven"] %></p>
 	</div>
-	<!--div class="profileWidget">
+	<div class="profileWidget">
 		<p><strong>Ranking</strong></p>
 		<p>TBD</p>
-	</div-->
-	<div class="profileWidget">
+	</div>
+	<!--div class="profileWidget">
 		<p><strong>Fitbit</strong></p>
 		<% if @mv["fitbitRegistered"] == true  %>
 		<p>Registered</p>
 		<% elsif @mv["fitbitRegistered"] == false %>
 		<p><a href="https://plp-api.herokuapp.com/registerfitbit?<%= @mv["email"] %>">Register</a></p>
 		<% end %>
-	</div>
+	</div-->
 </div>
 <div></div>
