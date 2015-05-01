@@ -670,8 +670,12 @@ helpers do
     puts "LOG | Calling to LCP | body: " + body.to_s
 
     # Prep vars
-    mac_key_identifier = ENV["PLP_MAC_ID"]
-    mac_key = ENV["PLP_MAC_KEY"]
+    mac_key_identifier = "d0625c4f2cc34b189379f3daeab8214e"
+    mac_key = "9rYblk4BojCV8X9fcauTrzpoxmoq1VItpO9TR9Au4Y8"
+    
+    #mac_key_identifier = ENV["PLP_MAC_ID"]
+    #mac_key = ENV["PLP_MAC_KEY"]
+    
     method = method.upcase
 
     # Ignore content type if the GET 
