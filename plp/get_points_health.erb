@@ -1,8 +1,8 @@
 <h1>Get points…for living healthy!</h1>
 <p class="lead">
 	<p class="leader_text">We love a good competition, especially when there’s an opportunity to make a huge impact on the way we live.</p>
-	<p class="leader_text">If you have a Fitbit, <a href="https://plp-api.herokuapp.com/registerfitbit?<%= @mv["email"] %>">register</a> so you can automatically earn points for living healthy.</p>
-	<p class="leader_text">If you do not have a Fitbit or you don't wish to automatically earn points, tell us below what you did to live healthier and claim your points!</p>
+	<p class="leader_text"><% if @mv["fitbitRegistered"] == true  %>Looks live you've already registered your Fitbit with the program. Way to go! You're earning points automatically for living healthy!<% elsif @mv["fitbitRegistered"] == false %>If you have a Fitbit, <a href="https://plp-api.herokuapp.com/registerfitbit?<%= @mv["email"] %>">register</a> so you can automatically earn points for living healthy.<% end %></p>
+	<p class="leader_text">If what you did was not something health monitors cannot yet measure automatically, tell us about it below and claim your points!</p>
 
 </p>
 
