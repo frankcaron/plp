@@ -27,9 +27,17 @@ configure do
     set :public_folder, Proc.new { File.join(root, "plp") }
     set :show_exceptions, true
     set :static_cache_control, [:public, max_age: 0]
+    
+    # Order Types
+    set :points_for_good_order_type, "PointsIncentive"
+    set :points_for_health_order_type, "PointsIncentiveHealth"
+    set :points_for_collaboration_order_type, "PointsIncentiveHighFive"
 
     # PICs
-    set :base_give_pic, "PointsForGood"
+    set :base_give_pic_good, "PointsForGood"
+    set :base_give_pic_health, "PointsForHealth"
+    set :base_give_pic_collaboration, "PointsForCollaboration"
+    
     set :plp_registration_url, "https://plp-api.herokuapp.com/register"
 
     #Staging
@@ -199,13 +207,13 @@ get '/account/activity' do
     end       
 end
 
-get '/account/get' do
+get '/account/getPointsGood' do
 
     #Pass session details to view
     @mv = session[:sessionMV]
     @session = session[:session]
     
-    erb :get_points
+    erb :get_points_good
 end
 
 post '/account/give-points' do
@@ -222,13 +230,14 @@ post '/account/give-points' do
     puts "LOG | Form Post | Email " + email.to_s
 
     # Structure data
-    pic = settings.base_give_pic
+    pic = settings.base_give_pic_collaboration
+    orderType = settings.points_for_collaboration_order_type
     recipient = { "firstName" => firstName, "lastName" => lastName, "email" => email }
 
     # Do the Gift
     begin
         puts "LOG | Gifting to a member " + recipient.to_s
-        credit_member(recipient, points, pic, message)
+        credit_member(recipient, points, pic, orderType, message)
 
         puts "LOG | Successfully gifted " + points
 
@@ -242,7 +251,7 @@ post '/account/give-points' do
     end   
 end
 
-post '/account/get-points' do
+post '/account/get-points-good' do
     # Pass session details to view
     # credit_member(self)
     #Grab params
@@ -254,13 +263,14 @@ post '/account/get-points' do
     puts "LOG | Form Post | Message " + message
 
     # Structure data
-    pic = settings.base_give_pic
+    pic = settings.base_give_pic_good
+    orderType = settings.points_for_good_order_type
     recipient = { "firstName" => session[:sessionMV]["firstName"], "lastName" => session[:sessionMV]["lastName"], "email" => session[:sessionMV]["email"] }
 
     # Do the Gift
     begin
         puts "LOG | Self gifting to a member " + recipient.to_s
-        credit_member(recipient, points.to_i, pic, message)
+        credit_member(recipient, points.to_i, pic, orderType, message)
 
         puts "LOG | Successfully self gifted " + points
 
@@ -448,7 +458,7 @@ helpers do
   # Creates a credit and order for a member
   # This special admin version is used for the activity awarding
   # ======================
-  def credit_member(recipient, points, pic, message)
+  def credit_member(recipient, points, pic, orderType, message)
     # If the member is an admin
     #unless session[:sessionMV]["admin"].nil?
       #Create recipient MV
@@ -460,7 +470,7 @@ helpers do
       
       puts "creatingOrder"
       #Create order
-      order = JSON.parse(create_order(recipientMV, points, pic, message))
+      order = JSON.parse(create_order(recipientMV, points, pic, orderType, message))
       #Patch MVs
 
       patch_mv(userMV,order)
@@ -476,19 +486,18 @@ helpers do
   #
   # Creates a new order on the LCP
   # ======================
-  def create_order(recipientMV, points, pic, message)
-    orderType = "PointsIncentive"
+  def create_order(recipientMV, points, pic, orderType, message)
     
     #Order Data Section
     loyaltyProgram = session[:sessionMV]["loyaltyProgram"]
     user = {"firstName" => session[:sessionMV]["firstName"],    #TODO: cleanup to use this from the MV
             "lastName" => session[:sessionMV]["lastName"], 
-            #"email" => session[:sessionMV]["email"], 
+            "email" => session[:sessionMV]["email"], 
             "balance" => session[:sessionMV]["balance"],
             "picture" => session[:sessionMV]["picture"]} 
     recipient = {"firstName" => recipientMV["firstName"],
                  "lastName" => recipientMV["lastName"], 
-                 #"email" => recipientMV["email"], 
+                 "email" => recipientMV["email"], 
                  "balance" => recipientMV["balance"]}
     basePIC = {"base" => pic}
     
