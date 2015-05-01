@@ -187,7 +187,7 @@ get '/account/activity' do
         puts "LOG | (Limit, Offset) " + limit + "," + offset
 
         # Get the orders
-        url = settings.base_url + "/search/orders/?limit=" + limit + "&offset=" + offset +  "&q=orderType:PointsIncentive%20AND%20createdAt:%5B2015-04-09T00:00:00.000000Z%20TO%20*%5D&sort=createdAt:desc"
+        url = settings.base_url + "/search/orders/?limit=" + limit + "&offset=" + offset +  "&q=(orderType:PointsIncentive%20OR%20orderType:PointsIncentiveHealth)%20AND%20createdAt:%5B2015-04-09T00:00:00.000000Z%20TO%20*%5D&sort=createdAt:desc"
         orders = call_lcp("GET",url,"")
         orders = JSON.parse(orders)
 
@@ -670,11 +670,9 @@ helpers do
     puts "LOG | Calling to LCP | body: " + body.to_s
 
     # Prep vars
-    mac_key_identifier = "d0625c4f2cc34b189379f3daeab8214e"
-    mac_key = "9rYblk4BojCV8X9fcauTrzpoxmoq1VItpO9TR9Au4Y8"
     
-    #mac_key_identifier = ENV["PLP_MAC_ID"]
-    #mac_key = ENV["PLP_MAC_KEY"]
+    mac_key_identifier = ENV["PLP_MAC_ID"]
+    mac_key = ENV["PLP_MAC_KEY"]
     
     method = method.upcase
 
