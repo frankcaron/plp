@@ -216,6 +216,15 @@ get '/account/getPointsGood' do
     erb :get_points_good
 end
 
+get '/account/getPointsHealth' do
+
+    #Pass session details to view
+    @mv = session[:sessionMV]
+    @session = session[:session]
+    
+    erb :get_points_health
+end
+
 post '/account/give-points' do
     #Grab params
     firstName = params[:firstName]
@@ -265,6 +274,39 @@ post '/account/get-points-good' do
     # Structure data
     pic = settings.base_give_pic_good
     orderType = settings.points_for_good_order_type
+    recipient = { "firstName" => session[:sessionMV]["firstName"], "lastName" => session[:sessionMV]["lastName"], "email" => session[:sessionMV]["email"] }
+
+    # Do the Gift
+    begin
+        puts "LOG | Self gifting to a member " + recipient.to_s
+        credit_member(recipient, points.to_i, pic, orderType, message)
+
+        puts "LOG | Successfully self gifted " + points
+
+        # Redirect to the account page
+        redirect '/account/profile'
+    rescue => e
+        # Log the response
+        puts "LOG | Failed to credit member | " + e.to_s
+        # Redirect to the error page
+        redirect '/error'
+    end    
+end
+
+post '/account/get-points-health' do
+    # Pass session details to view
+    # credit_member(self)
+    #Grab params
+    points = params[:points]
+    message = params[:message]
+
+    #Params
+    puts "LOG | Form Post | Points " + points
+    puts "LOG | Form Post | Message " + message
+
+    # Structure data
+    pic = settings.base_give_pic_health
+    orderType = settings.points_for_health_order_type
     recipient = { "firstName" => session[:sessionMV]["firstName"], "lastName" => session[:sessionMV]["lastName"], "email" => session[:sessionMV]["email"] }
 
     # Do the Gift
