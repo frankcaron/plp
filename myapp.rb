@@ -543,7 +543,7 @@ helpers do
                  "balance" => recipientMV["balance"]}
     basePIC = {"base" => pic}
     
-    orderDetails = {"basePoints" => points, "recipientMessage" => message, "pic" => basePIC}
+    orderDetails = {"basePoints" => points, "recipientMessage" => message.strip, "pic" => basePIC}
     orderData = {"loyaltyProgram" => loyaltyProgram, "user" => user, "recipient" => recipient, "orderDetails" => orderDetails}
     
     #Construct order request
