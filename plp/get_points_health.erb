@@ -2,7 +2,7 @@
 <p class="lead">
 	<p class="leader_text">We love a good competition, especially when there’s an opportunity to make a huge impact on the way we live.</p>
 	<p class="leader_text"><% if @mv["fitbitRegistered"] == true  %>Looks live you've already registered your Fitbit with the program. Way to go! You're earning points automatically for living healthy!<% elsif @mv["fitbitRegistered"] == false %>If you have a Fitbit, <a href="https://plp-api.herokuapp.com/registerfitbit?<%= @mv["email"] %>">register</a> so you can automatically earn points for living healthy.<% end %></p>
-	<p class="leader_text">If what you did was something health monitors cannot yet measure automatically, tell us about it below and claim your points!</p>
+	<p class="leader_text"><b>If what you did was something health monitors cannot yet measure automatically (or you don't have a Fitbit)</b>, tell us about it below and claim your points!</p>
 
 </p>
 
@@ -15,7 +15,7 @@
   			<option value="4000">I invested 4 hours into (learning about) living healthier.</option>  			
   			<option value="5000">I organized a "healthy living" activity for 5 or more Poinsters!</option>
 		</select>
-		<input class="textfield" type="text" name="message" placeholder="Tell us more about what you did." required />
+		<input class="textfield" type="text" name="message" placeholder="e.g. biked to work, meditated, lunch and learn" required />
 		<input type="submit" value="Get My Points!" />
 	</form>
 	<br />
