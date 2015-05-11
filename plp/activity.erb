@@ -4,7 +4,7 @@
 <div class="activityWidgets">
 	
 <% @orders["orders"].each do |order| %>	
-	<% unless order["status"]=="unknown" %>
+	<% if order["status"]=="statusPending" %>
 		<div class="activityWidget">
 			<div class="profileActivityImage">
 				<div class="profileAvatarActivity">
