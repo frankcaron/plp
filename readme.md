@@ -25,6 +25,10 @@ View at `http://localhost:9292`
 
 Alternatively, check it out on Heroku @ 'https://plp.herokuapp.com'.
 
+# Screenshot
+
+<img src="http://i.imgur.com/evx330P.png" width="800">
+
 # Depedencies
 
 The Gemfile has it all, but in short:
