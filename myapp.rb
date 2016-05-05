@@ -339,7 +339,7 @@ post '/account/get-points-health-manual' do
     # Pass session details to view
     # credit_member(self)
     #Grab params
-    amount = params[:amount]
+    amount = params[:amount].to_i
     activity = params[:activity]
     message = "Manual tracking"
 	
