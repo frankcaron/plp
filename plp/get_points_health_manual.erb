@@ -1,0 +1,57 @@
+<h1>Get points…for living healthy!</h1>
+<p class="lead">
+	<p class="leader_text">We love a good competition, especially when there’s an opportunity to make a huge impact on the way we live.</p>
+	<p class="leader_text"><% if @mv["fitbitRegistered"] == true  %>Looks live you've already registered your Fitbit with the program. Way to go! You're earning points automatically for living healthy!<% elsif @mv["fitbitRegistered"] == false %>If you have a Fitbit, <a href="https://plp-api.herokuapp.com/registerfitbit?<%= @mv["email"] %>">register</a> so you can automatically earn points for living healthy.<% end %></p>
+	<p class="leader_text"><b>If what you did was something health monitors cannot yet measure automatically (or you don't have a Fitbit)</b>, tell us about it below and claim your points!</p>
+
+</p>
+
+<div class="get">
+	<form class="give" method="post" action="/account/get-points-health">
+		<select name="points">
+  			<option value="500">I invested 30 minutes into living healthier.</option>
+  			<option value="1000">I invested 1 hour into living healthier.</option>
+  			<option value="1500">I invested 90 minutes into living healthier.</option>
+  			<option value="2000">I invested 2 hours into living healthier.</option>  			
+  			<option value="5000">I organized a "healthy living" activity for 5 or more Poinsters!</option>
+		</select>
+		<input class="textfield" type="text" name="message" placeholder="e.g. biked to work, meditated, lunch and learn" required />
+		<input type="submit" value="Get My Points!" />
+	</form>
+	<br />
+</div>
+<br />
+<% if @mv["fitbitRegistered"] == true  %>
+<script>
+function validateForm()
+{
+
+   var z = document.forms["manualTracking"]["amount"].value;
+   if(!z.match(/^\d+/))
+       {
+       alert("Please only enter a numeric value")
+       }
+	return z
+}
+</script>
+<p class="lead">
+	<p class="leader_text">If you need to track steps, water, active minutes, or distance manually you can do so here.</p>
+</p>
+
+<div class="get">
+	<form class="give" id="manualTracking" method="post" action="/account/get-points-health-manual">
+		<select name="activity">
+  			<option value="steps"># Steps</option>
+  			<option value="water">Water consumption (ml)</option>
+  			<option value="distance">Distance travelled (km)</option>
+  			<option value="activeMinutes">Active minutes</option>  			
+  			<option value="sleep">Sleep quality (percentage)</option>  			
+		</select>
+		<input class="textfield" type="text" name="amount" id="amount" required />
+		<input type="submit" value="Get My Points!" onclick="return validateForm()" />
+	</form>
+</div>
+<% end %>
+
+	<br />
+	<p>Any questions? Please email <a href="mailto:SocialCommittee@points.com">SocialCommittee@points.com</a>.</p>
