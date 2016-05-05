@@ -225,6 +225,15 @@ get '/account/getPointsHealth' do
     erb :get_points_health
 end
 
+get '/account/getPointsHealthJeff' do
+
+    #Pass session details to view
+    @mv = session[:sessionMV]
+    @session = session[:session]
+    
+    erb :get_points_health_manual
+end
+
 post '/account/give-points' do
     #Grab params
     firstName = params[:firstName]
