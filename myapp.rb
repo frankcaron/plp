@@ -225,15 +225,6 @@ get '/account/getPointsHealth' do
     erb :get_points_health
 end
 
-get '/account/getPointsHealthJeffTest' do
-
-    #Pass session details to view
-    @mv = session[:sessionMV]
-    @session = session[:session]
-    
-    erb :get_points_health_manual
-end
-
 post '/account/give-points' do
     #Grab params
     firstName = params[:firstName]
@@ -310,61 +301,6 @@ post '/account/get-points-health' do
     message = params[:message]
 
     #Params
-    puts "LOG | Form Post | Points " + points
-    puts "LOG | Form Post | Message " + message
-
-    # Structure data
-    pic = settings.base_give_pic_health
-    orderType = settings.points_for_health_order_type
-    recipient = { "firstName" => session[:sessionMV]["firstName"], "lastName" => session[:sessionMV]["lastName"], "email" => session[:sessionMV]["email"] }
-
-    # Do the Gift
-    begin
-        puts "LOG | Self gifting to a member " + recipient.to_s
-        credit_member(recipient, points.to_i, pic, orderType, message)
-
-        puts "LOG | Successfully self gifted " + points
-
-        # Redirect to the account page
-        redirect '/account/profile'
-    rescue => e
-        # Log the response
-        puts "LOG | Failed to credit member | " + e.to_s
-        # Redirect to the error page
-        redirect '/error'
-    end    
-end
-
-post '/account/get-points-health-manual' do
-    # Pass session details to view
-    # credit_member(self)
-    #Grab params
-	#fuck
-    amount = params[:amount]
-    activity = params[:activity]
-    message = "Manual tracking"
-	
-    if activity == "steps"
-        points = [amount/10, 2500].min
-    elsif activity == "water"
-        points = [amount, 2000].min
-	elsif activity == "distance"
-        points = [amount*100,1000].min
-	elsif activity == "activeMinutes"
-        points = [amount*500/30,1000].min
-	elsif activity == "sleep"
-        if amount.between?(70,79)
-            points = 500
-        elsif amount.between?(80,89)
-            points = 1000
-        elsif amount.between?(90,101)
-            points = 1500
-        else points = 0
-    end
-	points = points.to_i
-    #Params
-    puts "LOG | Form Post | Amount " + amount
-    puts "LOG | Form Post | Activity " + activity
     puts "LOG | Form Post | Points " + points
     puts "LOG | Form Post | Message " + message
 
