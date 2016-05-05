@@ -363,9 +363,9 @@ post '/account/get-points-health-manual' do
     end
 
     #Params
-    puts "LOG | Form Post | Amount " + amount
+    puts "LOG | Form Post | Amount " + amount.to_s
     puts "LOG | Form Post | Activity " + activity
-    puts "LOG | Form Post | Points " + points
+    puts "LOG | Form Post | Points " + points.to_s
     puts "LOG | Form Post | Message " + message
 
     # Structure data
