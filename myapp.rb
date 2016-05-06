@@ -341,6 +341,7 @@ post '/account/get-points-health-manual' do
     #Grab params
     amount = params[:amount].to_i
     activity = params[:activity]
+	date = params[:date]
     message = "Manual tracking"
 	
     if activity == "steps"
@@ -365,6 +366,7 @@ post '/account/get-points-health-manual' do
     #Params
     puts "LOG | Form Post | Amount " + amount.to_s
     puts "LOG | Form Post | Activity " + activity
+	puts "LOG | Form Post | Date " + date
     puts "LOG | Form Post | Points " + points.to_s
     puts "LOG | Form Post | Message " + message
 

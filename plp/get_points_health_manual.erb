@@ -20,7 +20,7 @@
 	</form>
 	<br />
 </div>
-<% if @mv["fitbitRegistered"] == true  %>
+<% if @mv["fitbitRegistered"] == false  %>
 <script>
 function validateForm()
 {
@@ -47,7 +47,7 @@ function validateForm()
   			<option value="sleep">Sleep quality (percentage)</option>  			
 		</select>
 		<input class="textfield" type="text" name="amount" placeholder="Amount" id="amount" required />
-		<input class="textfield" type="text" name="Date" placeholder="Date" id="Date" required />
+		<input class="textfield" type="text" name="date" placeholder="Date" id="date" required />
 		<input type="submit" value="Get My Points!" onclick="return validateForm()" />
 	</form>
 </div>
