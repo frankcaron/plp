@@ -225,15 +225,6 @@ get '/account/getPointsHealth' do
     erb :get_points_health
 end
 
-get '/account/getPointsHealthJeffTest' do
-
-    #Pass session details to view
-    @mv = session[:sessionMV]
-    @session = session[:session]
-    
-    erb :get_points_health_manual
-end
-
 post '/account/give-points' do
     #Grab params
     firstName = params[:firstName]
@@ -342,16 +333,19 @@ post '/account/get-points-health-manual' do
     amount = params[:amount].to_i
     activity = params[:activity]
 	date = params[:date]
-    message = "Manual tracking"
 	
     if activity == "steps"
         points = [amount/10, 2500].min
+        message = "Manually tracking steps"
     elsif activity == "water"
         points = [amount, 2000].min
+        message = "Manually tracking water"
 	elsif activity == "distance"
         points = [amount*100,1000].min
+        message = "Manually tracking distance"
 	elsif activity == "activeMinutes"
         points = [amount*500/30,1000].min
+        message = "Manually tracking active minutes"
 	elsif activity == "sleep"
         if amount.between?(70,79)
             points = 500
@@ -361,6 +355,7 @@ post '/account/get-points-health-manual' do
             points = 1500
         else points = 0
 		end
+        message = "Manually tracking sleep quality"
     end
 
     #Params
@@ -378,7 +373,7 @@ post '/account/get-points-health-manual' do
     # Do the Gift
     begin
         puts "LOG | Self gifting to a member " + recipient.to_s
-        #credit_member(recipient, points.to_i, pic, orderType, message)
+        credit_member(recipient, points.to_i, pic, orderType, message)
 
         puts "LOG | Successfully self gifted " + points.to_s
 

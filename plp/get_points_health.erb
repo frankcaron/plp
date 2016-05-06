@@ -19,5 +19,38 @@
 		<input type="submit" value="Get My Points!" />
 	</form>
 	<br />
-	<p>Any questions? Please email <a href="mailto:SocialCommittee@points.com">SocialCommittee@points.com</a>.</p>
 </div>
+<% if @mv["fitbitRegistered"] == false  %>
+<script>
+function validateForm()
+{
+
+   var z = document.forms["manualTracking"]["amount"].value;
+   if(!z.match(/^\d+/))
+       {
+       alert("Please only enter a numeric value")
+       }
+	return z.match(/^\d+/);
+}
+</script>
+<p class="lead">
+	<p class="leader_text">If you need to track steps, water, active minutes, distance, or sleep quality manually you can do so here.</p>
+</p>
+
+<div class="get">
+	<form class="give" id="manualTracking" method="post" action="/account/get-points-health-manual">
+		<select name="activity">
+  			<option value="steps"># Steps</option>
+  			<option value="water">Water consumption (ml)</option>
+  			<option value="distance">Distance travelled (km)</option>
+  			<option value="activeMinutes">Active minutes</option>  			
+  			<option value="sleep">Sleep quality (percentage)</option>  			
+		</select>
+		<input class="textfield" type="text" name="amount" placeholder="Amount" id="amount" required />
+		<input class="textfield" type="text" name="date" placeholder="Date" id="date" required />
+		<input type="submit" value="Get My Points!" onclick="return validateForm()" />
+	</form>
+</div>
+<% end %>
+
+	<p>Any questions? Please email <a href="mailto:SocialCommittee@points.com">SocialCommittee@points.com</a>.</p>
