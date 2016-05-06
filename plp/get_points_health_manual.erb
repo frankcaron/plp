@@ -20,7 +20,6 @@
 	</form>
 	<br />
 </div>
-<br />
 <% if @mv["fitbitRegistered"] == true  %>
 <script>
 function validateForm()
@@ -35,7 +34,7 @@ function validateForm()
 }
 </script>
 <p class="lead">
-	<p class="leader_text">If you need to track steps, water, active minutes, or distance manually you can do so here.</p>
+	<p class="leader_text">If you need to track steps, water, active minutes, distance, or sleep quality manually you can do so here.</p>
 </p>
 
 <div class="get">
@@ -47,7 +46,8 @@ function validateForm()
   			<option value="activeMinutes">Active minutes</option>  			
   			<option value="sleep">Sleep quality (percentage)</option>  			
 		</select>
-		<input class="textfield" type="text" name="amount" id="amount" required />
+		<input class="textfield" type="text" name="amount" placeholder="Amount" id="amount" required />
+		<input class="textfield" type="text" name="Date" placeholder="Date" id="Date" required />
 		<input type="submit" value="Get My Points!" onclick="return validateForm()" />
 	</form>
 </div>

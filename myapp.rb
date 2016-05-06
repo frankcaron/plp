@@ -378,6 +378,7 @@ post '/account/get-points-health-manual' do
         puts "LOG | Self gifting to a member " + recipient.to_s
         #credit_member(recipient, points.to_i, pic, orderType, message)
 
+        puts "LOG | Successfully self gifted " + points.to_s
 
         # Redirect to the account page
         redirect '/account/profile'
