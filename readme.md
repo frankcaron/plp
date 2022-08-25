@@ -38,4 +38,4 @@ The Gemfile has it all, but in short:
 * RbLCP
 * RestClient
 
-This front-end app also relies on a back-end, called the PLP-API, also deployed to Heroku and built on Mulesoft.
+This front-end app also relies on a back-end, called the PLP-API, also deployed to Heroku and built on Mulesoft. 
